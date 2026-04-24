@@ -8,7 +8,9 @@ from __future__ import annotations
 import hashlib
 import re
 from collections.abc import Iterator
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+
+UTC = timezone.utc
 from pathlib import Path
 
 import frontmatter

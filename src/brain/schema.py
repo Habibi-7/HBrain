@@ -8,14 +8,14 @@ lives in `events.event_from_frontmatter`.
 from __future__ import annotations
 
 from datetime import datetime
-from enum import StrEnum
+from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
 
 SCHEMA_VERSION = 1
 
 
-class EventType(StrEnum):
+class EventType(str, Enum):
     NOTE = "note"
     TASK = "task"
     DECISION = "decision"
@@ -23,7 +23,7 @@ class EventType(StrEnum):
     LINK = "link"
 
 
-class EventStatus(StrEnum):
+class EventStatus(str, Enum):
     OPEN = "open"
     DONE = "done"
     BLOCKED = "blocked"

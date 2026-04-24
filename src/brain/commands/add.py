@@ -11,7 +11,9 @@ return a structured NOT_IMPLEMENTED error with a fix hint.
 from __future__ import annotations
 
 import sys
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+
+UTC = timezone.utc
 from pathlib import Path
 
 from .. import audit, cache
