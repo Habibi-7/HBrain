@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "living-brain"
-version = "0.1.0"
+version = "0.1.1"
 description = "Living Brain — agent-native CLI for a markdown-backed personal knowledge and task store."
 readme = "README.md"
 requires-python = ">=3.11"
