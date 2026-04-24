@@ -19,6 +19,7 @@ import typer
 from . import __version__
 from .commands.add import run_add
 from .commands.init import run_init
+from .commands.install_skill import run_install_skill
 from .commands.reindex import run_reindex
 from .commands.show import run_show
 from .commands.timeline import run_timeline
@@ -99,6 +100,11 @@ _COMMAND_TREE: list[dict] = [
         "name": "reindex",
         "usage": "brain reindex",
         "description": "Rebuild the SQLite cache from the markdown vault.",
+    },
+    {
+        "name": "install-skill",
+        "usage": "brain install-skill [--scope user|project] [--path <dir>] [--force]",
+        "description": "Install the bundled Claude skill for agent auto-triggering.",
     },
 ]
 
@@ -377,6 +383,27 @@ def reindex_cmd(ctx: typer.Context) -> None:
         ctx,
         "brain reindex",
         lambda: run_reindex(find_vault(state.vault_override), agent=state.agent_name),
+    )
+
+
+@app.command("install-skill")
+def install_skill_cmd(
+    ctx: typer.Context,
+    scope: str = typer.Option(
+        "user",
+        "--scope",
+        help="Install scope: user (~/.claude/skills/) or project (./.claude/skills/).",
+    ),
+    path: Path | None = typer.Option(
+        None, "--path", help="Custom destination directory. Overrides --scope."
+    ),
+    force: bool = typer.Option(False, "--force", help="Overwrite an existing skill file."),
+) -> None:
+    """Install the bundled Claude skill so Cowork/Claude Code auto-trigger brain."""
+    _run(
+        ctx,
+        "brain install-skill",
+        lambda: run_install_skill(scope=scope, path=path, force=force),
     )
 
 
