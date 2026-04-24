@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv
+uv.lock
+
+# OS
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Test / demo vaults
+/vault/
+/my-vault/
+/scratch/
+/tmp/
+
+# Brain derivative state (if a vault is ever created in-repo)
+.brain/cache.sqlite
+.brain/cache.sqlite-*
