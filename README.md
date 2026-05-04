@@ -1,72 +1,90 @@
 # brain — Living Second Brain
 
-A skill that teaches your computer agent to maintain a personal knowledge and task system as plain markdown files.
+A skill + CLI that teaches your agent to capture thoughts, tasks, and decisions as plain markdown files you own — and query them later.
 
-No app. No CLI. No package. Your agent already knows how to write files — this skill teaches it **what** to write and **how** to present it.
+## Install
+
+One line. Auto-detects your agent platform and installs the skill + `brain` CLI.
+
+**Private repo (gh already authed):**
+```bash
+gh api -H "Accept: application/vnd.github.v3.raw" /repos/Habibi-7/living-brain/contents/install.sh | sh
+```
+
+**Public repo:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh
+```
+
+The installer detects `~/.claude`, `.cursor/`, `.windsurf/`, `.github/` and puts the skill in the right place. It also installs the `brain` CLI via `go install`.
+
+**Force a specific platform:**
+```bash
+... | sh -s -- --cursor    # Cursor
+... | sh -s -- --claude    # Claude Code / Cowork
+... | sh -s -- --windsurf  # Windsurf
+... | sh -s -- --copilot   # GitHub Copilot
+```
+
+## First use
+
+After install, just talk to your agent. First time it will ask where to keep your vault (default: `~/brain`). Then:
+
+```
+"remember that we chose Tailwind over plain CSS"   →  ✓ decision saved
+"remind me to review the auth PR"                  →  ✓ task · open
+"what did I decide about the database?"            →  decision · May 4 · Chose Postgres...
+"show my week"                                     →  opens timeline in browser
+"my open tasks"                                    →  3 open tasks: ...
+```
+
+## brain CLI
+
+For richer views, use the `brain` binary directly:
+
+```bash
+brain stats                # vault overview: counts, types, top tags
+brain tasks                # open tasks (default)
+brain tasks all            # all tasks by status
+brain search postgres      # full-text + tag search
+brain stale 14             # open/blocked tasks older than 14 days
+brain timeline             # open HTML timeline in browser (default: 7 days)
+brain timeline 30          # last 30 days
+```
+
+Set `BRAIN_DIR` if your vault is not at `~/brain`:
+```bash
+export BRAIN_DIR=~/Dropbox/brain
+```
 
 ## How it works
 
 ```
-You speak naturally → Agent writes structured markdown → Agent queries + renders views
+You speak naturally
+  → Agent captures structured markdown files to ~/brain/events/
+  → brain CLI reads vault, produces views
 ```
 
 The skill teaches your agent:
-- **Schema** — how to structure events (5 types: note, task, decision, fact, link)
-- **Capture** — when and how to write event files
-- **Query** — how to find, filter, and aggregate events
-- **Views** — how to render data using strict templates
+- **Schema** — 5 event types: `note` `task` `decision` `fact` `link`
+- **Capture** — write one file per thought, use your exact words
+- **Query** — find, filter, aggregate using file tools
+- **Views** — render using strict templates
 
-## Install
-
-### Claude Code / Cowork
-
-Copy the skill folder:
-
-```bash
-cp -r skill/SKILL.md ~/.claude/skills/brain/SKILL.md
-```
-
-Copy templates to your vault (after creating one):
-
-```bash
-mkdir -p ~/brain/.brain/templates
-cp skill/templates/* ~/brain/.brain/templates/
-```
-
-### Other agents
-
-Install the skill however your agent platform supports it. The skill is a
-self-contained markdown document — any agent that can read it will learn the
-system.
-
-## After install
-
-Talk naturally:
-
-- "Remember that I chose Postgres for the JSON support"
-- "I need to review the proposal by Friday"
-- "What did I decide about the database?"
-- "Show my week"
-- "List my open tasks"
-- "Mark that task done"
-
-The agent captures events as markdown files and queries them to answer your questions.
-
-## What gets created
+## Vault structure
 
 ```
 ~/brain/
 ├── events/
-│   └── 2026/05/04/
-│       └── 01JVMY7QX-chose-postgres.md
+│   └── YYYY/MM/DD/
+│       └── <ulid>-<slug>.md    # one file per thought
 ├── renders/
 └── .brain/
     └── templates/
         └── timeline.html
 ```
 
-Each event is a markdown file:
-
+Each event:
 ```markdown
 ---
 id: 01JVMY7QXR8KF3DNQJ5CGPXG9S
@@ -74,31 +92,25 @@ schema: 1
 type: decision
 created_at: 2026-05-04T14:32:11Z
 source: agent
-agent: cowork
+agent: cursor
 tags: [backend, database]
-links: []
 ---
 
-Chose Postgres over Mongo because of native JSON support and ACID guarantees.
+Chose Postgres over Mongo — native JSON support and ACID guarantees.
 ```
 
-## Event types
+## Platform support
 
-| Type | Use |
-| --- | --- |
-| `note` | Freeform thought, observation, idea (default) |
-| `task` | Something to do (status: open / done / blocked / cancelled) |
-| `decision` | "I chose X because Y" |
-| `fact` | External reference: quote, spec, number |
-| `link` | Saved URL with optional commentary |
+| Platform | Install path |
+|----------|-------------|
+| Claude Code / Cowork | `~/.claude/skills/brain.md` |
+| Cursor | `.cursor/rules/brain.mdc` |
+| Windsurf | `.windsurf/rules/brain.md` |
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Any agent | `platforms/system-prompt.md` → paste into system prompt |
 
-## Templates
-
-Templates in `.brain/templates/` define strict, consistent views. The agent
-fills template slots with event data — it doesn't improvise layout.
-
-Teams using the same templates see identical views.
+See [`platforms/`](./platforms/) for per-platform files.
 
 ## Vision
 
-See [CONTEXT.md](./CONTEXT.md) for the full product vision and design principles.
+See [CONTEXT.md](./CONTEXT.md).
