@@ -1,7 +1,11 @@
 #!/usr/bin/env sh
 set -e
 
-REPO="https://raw.githubusercontent.com/Habibi-7/living-brain/main"
+REPO_OWNER="Habibi-7"
+REPO_NAME="living-brain"
+REPO_REF="main"
+REPO_RAW="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/$REPO_REF"
+REPO_API="/repos/$REPO_OWNER/$REPO_NAME/contents"
 SKILL_INSTALLED=0
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -11,15 +15,28 @@ ok()      { printf '  \033[32m✓\033[0m %s\n' "$*"; }
 warn()    { printf '  \033[33m!\033[0m %s\n' "$*"; }
 die()     { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 
+# fetch <repo-path> <local-dest>
+# Priority: gh api (authed) > curl+GH_TOKEN > curl raw (public only)
 fetch() {
-  url="$1"; dest="$2"
+  path="$1"; dest="$2"
   mkdir -p "$(dirname "$dest")"
-  if command -v curl >/dev/null 2>&1; then
-    curl -fsSL "$url" -o "$dest"
+
+  if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    gh api -H "Accept: application/vnd.github.v3.raw" "$REPO_API/$path?ref=$REPO_REF" > "$dest"
+  elif command -v curl >/dev/null 2>&1; then
+    if [ -n "$GH_TOKEN" ]; then
+      curl -fsSL -H "Authorization: token $GH_TOKEN" "$REPO_RAW/$path" -o "$dest"
+    else
+      curl -fsSL "$REPO_RAW/$path" -o "$dest"
+    fi
   elif command -v wget >/dev/null 2>&1; then
-    wget -qO "$dest" "$url"
+    if [ -n "$GH_TOKEN" ]; then
+      wget -qO "$dest" --header="Authorization: token $GH_TOKEN" "$REPO_RAW/$path"
+    else
+      wget -qO "$dest" "$REPO_RAW/$path"
+    fi
   else
-    die "curl or wget required"
+    die "gh, curl, or wget required"
   fi
 }
 
@@ -27,28 +44,28 @@ fetch() {
 
 install_claude_code() {
   dest="$HOME/.claude/skills/brain.md"
-  fetch "$REPO/skill/SKILL.md" "$dest"
+  fetch "skill/SKILL.md" "$dest"
   ok "Claude Code  →  $dest"
   SKILL_INSTALLED=1
 }
 
 install_cursor() {
   dest="${1:-.}/.cursor/rules/brain.mdc"
-  fetch "$REPO/platforms/cursor.mdc" "$dest"
+  fetch "platforms/cursor.mdc" "$dest"
   ok "Cursor       →  $dest"
   SKILL_INSTALLED=1
 }
 
 install_windsurf() {
   dest="${1:-.}/.windsurf/rules/brain.md"
-  fetch "$REPO/platforms/windsurf.md" "$dest"
+  fetch "platforms/windsurf.md" "$dest"
   ok "Windsurf     →  $dest"
   SKILL_INSTALLED=1
 }
 
 install_copilot() {
   dest="${1:-.}/.github/copilot-instructions.md"
-  fetch "$REPO/platforms/copilot.md" "$dest"
+  fetch "platforms/copilot.md" "$dest"
   ok "Copilot      →  $dest"
   SKILL_INSTALLED=1
 }
