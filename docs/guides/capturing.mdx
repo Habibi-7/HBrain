@@ -1,0 +1,51 @@
+---
+title: Capturing Events
+description: "How the agent writes event files when you say something worth remembering."
+---
+
+## Trigger phrases
+
+The agent captures when you say things like:
+
+- "Remember that…" / "Note that…" / "Save this…"
+- "I decided…" / "We decided…" / "I'm going with…"
+- "I should…" / "Remind me to…" / "TODO…"
+- "Bookmark this…" / "Add to my brain…"
+
+When in doubt, the agent captures silently. A lost thought is worse than a stray event.
+
+## One file per thought
+
+Three thoughts = three files. Don't bundle unrelated captures into one event.
+
+Use `links` frontmatter to connect related events.
+
+## Use your phrasing
+
+The agent captures what you said, not a summary. Your words are the artifact — don't paraphrase.
+
+## File path
+
+```
+$BRAIN_DIR/events/YYYY/MM/DD/<ulid>-<slug>.md
+```
+
+- Date is the event date in UTC
+- ULID encodes the timestamp (time-sortable)
+- Slug = 2-5 words from the body, hyphenated
+
+## Confirmation
+
+After writing, the agent confirms briefly:
+
+> "Captured decision · `01JVM...`"
+
+That's it. No wall of JSON, no repeating your words back at you.
+
+## Backdating
+
+If you're capturing something that happened earlier, tell the agent:
+
+> "Note that this morning I decided to drop the caching layer."
+
+The agent sets `created_at` to the time you specified, not now.

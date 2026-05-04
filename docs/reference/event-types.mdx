@@ -1,0 +1,85 @@
+---
+title: Event Types
+description: "The five event types and when to use each."
+---
+
+## Types
+
+| Type | When to use | Required extras |
+|------|------------|-----------------|
+| `note` | Freeform thought, observation, or idea. **Default when unsure.** | — |
+| `task` | Something to do. | `status: open` |
+| `decision` | "I chose X because Y." Preserve the reasoning. | — |
+| `fact` | External reference: quote, spec, number, attribution. | — |
+| `link` | A URL to keep. Body = URL + optional commentary. | — |
+
+## Notes
+
+Freeform capture. Use for observations, meeting notes, ideas, reactions.
+
+```markdown
+---
+type: note
+tags: [research]
+---
+
+Reviewed the Hugentobler essay. Key insight: elapsed time beats compute time
+for systems that require consistent practice.
+```
+
+## Tasks
+
+Something to do. Always set `status: open` on creation.
+
+```markdown
+---
+type: task
+status: open
+tags: [dev]
+---
+
+Write integration tests for the timeline renderer.
+```
+
+Task statuses: `open` · `done` · `blocked` · `cancelled`
+
+## Decisions
+
+Capture both the choice and the reasoning. The reasoning is the value — don't drop it.
+
+```markdown
+---
+type: decision
+tags: [architecture, ids]
+---
+
+Use ULID for event IDs — lexicographically sortable, no coordination needed,
+and the timestamp is encoded in the ID itself.
+```
+
+## Facts
+
+External references: quotes, specs, numbers, attributed statements.
+
+```markdown
+---
+type: fact
+tags: [python]
+---
+
+Python 3.10 EOL: October 2026. Source: python.org/downloads.
+```
+
+## Links
+
+Saved URLs with optional commentary.
+
+```markdown
+---
+type: link
+tags: [reference, agents]
+---
+
+https://hugentobler.world/2026/feeding-computer-agents — foundational essay on
+agent-native software design. Read before making architecture decisions.
+```

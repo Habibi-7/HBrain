@@ -1,0 +1,42 @@
+---
+title: Views
+description: "Rendered summaries of your vault — timelines, task lists, digests."
+---
+
+## Requesting a view
+
+> "Show my week"
+
+> "My timeline for the last 30 days"
+
+> "Give me a digest of this month's decisions"
+
+> "List my open tasks"
+
+The agent queries your vault and renders the result using a template if one exists.
+
+## Timeline view
+
+The main view. Shows events in chronological order with type, tags, and a brief summary.
+
+Trigger phrases: "show my week", "my timeline", "recent events", "what happened this week"
+
+Uses `timeline.html` from `.brain/templates/`.
+
+## Task list view
+
+Shows open (or filtered) tasks.
+
+Trigger phrases: "list my open tasks", "my todos", "what do I have to do"
+
+## Consistency
+
+Templates make views consistent. Ask for "my week" today and next month — you get the same layout, making it easy to compare across periods.
+
+If no template exists for a view type, the agent presents data cleanly in its default format.
+
+## Saving a view
+
+> "Save this week's timeline."
+
+The agent writes the rendered artifact to `$BRAIN_DIR/renders/`.
