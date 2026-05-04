@@ -1,119 +1,104 @@
-# brain — Living Second Brain (MVP)
+# brain — Living Second Brain
 
-Agent-native CLI for a markdown-backed event store. See [`CONTEXT.md`](./CONTEXT.md) for the product vision and principles.
+A skill that teaches your computer agent to maintain a personal knowledge and task system as plain markdown files.
 
-This is the MVP covering the two foundational pieces: the **capture path + event schema**, and the **timeline retrieval surface**.
+No app. No CLI. No package. Your agent already knows how to write files — this skill teaches it **what** to write and **how** to present it.
+
+## How it works
+
+```
+You speak naturally → Agent writes structured markdown → Agent queries + renders views
+```
+
+The skill teaches your agent:
+- **Schema** — how to structure events (5 types: note, task, decision, fact, link)
+- **Capture** — when and how to write event files
+- **Query** — how to find, filter, and aggregate events
+- **Views** — how to render data using strict templates
 
 ## Install
 
-```bash
-uv sync                 # create .venv and install deps
-uv pip install -e .     # install the `brain` CLI into the venv
-source .venv/bin/activate
-```
+### Claude Code / Cowork
 
-Or with pip:
+Copy the skill folder:
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
+cp -r skill/SKILL.md ~/.claude/skills/brain/SKILL.md
 ```
 
-## Quickstart
+Copy templates to your vault (after creating one):
 
 ```bash
-brain init ./my-vault               # scaffold a vault
-export BRAIN_DIR=./my-vault          # point the CLI at it (or use --vault)
-
-brain add "reviewed the hugentobler essay" --type note --tags research,agents
-echo "use ULID for event ids" | brain add --type decision
-brain add --file notes/meeting.md --type note
-
-brain timeline --last 7d             # recent events
-brain timeline --format md --write   # writes renders/timelines/<range>.md
+mkdir -p ~/brain/.brain/templates
+cp skill/templates/* ~/brain/.brain/templates/
 ```
 
-## CLI contract (for agents)
+### Other agents
 
-Every command returns a JSON envelope when an agent is detected (`--agent` flag, or env var: `CLAUDECODE`, `CURSOR_TRACE_ID`, `COPILOT_AGENT_ENABLED`, `AIDER_*`, `OPENCODE`). Humans get a clean text view; under the hood it's the same data.
+Install the skill however your agent platform supports it. The skill is a
+self-contained markdown document — any agent that can read it will learn the
+system.
 
-### Success envelope
+## After install
 
-```json
-{
-  "ok": true,
-  "command": "brain add",
-  "result": { "...": "command-specific payload" },
-  "next_actions": [
-    { "command": "brain show <id>", "description": "...",
-      "params": { "id": { "value": "01K..." } } }
-  ],
-  "metrics": { "duration_ms": 34, "cost_usd": 0.0 }
-}
-```
+Talk naturally:
 
-### Error envelope
+- "Remember that I chose Postgres for the JSON support"
+- "I need to review the proposal by Friday"
+- "What did I decide about the database?"
+- "Show my week"
+- "List my open tasks"
+- "Mark that task done"
 
-```json
-{
-  "ok": false,
-  "command": "brain add",
-  "error": { "code": "INVALID_TYPE", "message": "...", "retryable": false },
-  "fix": "plain-language suggested fix",
-  "next_actions": [ ... ],
-  "metrics": { "duration_ms": 3, "cost_usd": 0.0 }
-}
-```
+The agent captures events as markdown files and queries them to answer your questions.
 
-### Exit codes
-
-- `0` — success
-- `2` — validation / user error (retryable=false)
-- `3` — transient / retryable error
-- `4` — vault not found / not initialized
-- `1` — unexpected error
-
-## Event file shape
+## What gets created
 
 ```
-vault/
-├── events/YYYY/MM/DD/<ulid>-<slug>.md
-├── renders/timelines/<range>.md
-├── audit/YYYY-MM-DD.jsonl
+~/brain/
+├── events/
+│   └── 2026/05/04/
+│       └── 01JVMY7QX-chose-postgres.md
+├── renders/
 └── .brain/
-    ├── config.toml
-    └── cache.sqlite          # derivative, rebuildable with `brain reindex`
+    └── templates/
+        └── timeline.html
 ```
 
-An event file:
+Each event is a markdown file:
 
 ```markdown
 ---
-id: 01K...ULID
+id: 01JVMY7QXR8KF3DNQJ5CGPXG9S
 schema: 1
-type: note
-created_at: 2026-04-24T14:32:11Z
-ingested_at: 2026-04-24T14:32:12Z
-source: cli
-agent: unknown
-tags: [research, agents]
+type: decision
+created_at: 2026-05-04T14:32:11Z
+source: agent
+agent: cowork
+tags: [backend, database]
 links: []
-hash: sha256:...
 ---
 
-the actual markdown body
+Chose Postgres over Mongo because of native JSON support and ACID guarantees.
 ```
 
-## Event types (v0)
+## Event types
 
-`note` · `task` · `decision` · `fact` · `link`
+| Type | Use |
+| --- | --- |
+| `note` | Freeform thought, observation, idea (default) |
+| `task` | Something to do (status: open / done / blocked / cancelled) |
+| `decision` | "I chose X because Y" |
+| `fact` | External reference: quote, spec, number |
+| `link` | Saved URL with optional commentary |
 
-Add via `--type`. Classification subagent is deferred; current MVP requires explicit type (or defaults to `note`).
+## Templates
 
-## Development
+Templates in `.brain/templates/` define strict, consistent views. The agent
+fills template slots with event data — it doesn't improvise layout.
 
-```bash
-uv run pytest          # run the test suite
-uv run ruff check      # lint
-uv run ruff format     # format
-```
+Teams using the same templates see identical views.
+
+## Vision
+
+See [CONTEXT.md](./CONTEXT.md) for the full product vision and design principles.
