@@ -1,0 +1,40 @@
+---
+title: Templates
+description: "Strict view templates that give every view a consistent layout."
+---
+
+## What templates do
+
+When you ask for a view ("show my week", "my open tasks"), the agent:
+
+1. **Queries** — finds and reads relevant event files
+2. **Loads** the matching template from `.brain/templates/`
+3. **Fills** the `{{placeholder}}` slots with event data
+4. **Presents** the rendered view
+
+The template defines the layout. The agent fills slots — it doesn't improvise.
+Same template = same look every time, across agents and sessions.
+
+## Available templates
+
+| File | Use when |
+|------|---------|
+| `timeline.html` | "Show my week", "my timeline", "recent events" |
+
+Templates are installed to your vault with:
+
+```bash
+cp skill/templates/* ~/brain/.brain/templates/
+```
+
+## Adding templates
+
+Drop any file with `{{placeholder}}` slots into `.brain/templates/`. The agent
+will use it when a view request matches.
+
+Teams sharing a vault can share templates — everyone sees identical views.
+
+## Fallback
+
+If no template exists for a requested view, the agent presents the data in a
+clean default format.
