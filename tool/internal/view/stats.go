@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/Habibi-7/LSB/tool/internal/event"
-	"github.com/Habibi-7/LSB/tool/internal/vault"
+	"github.com/Habibi-7/living-brain/tool/internal/event"
+	"github.com/Habibi-7/living-brain/tool/internal/vault"
 )
 
 func Stats(w io.Writer, v *vault.Vault) error {

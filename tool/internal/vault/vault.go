@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Habibi-7/LSB/tool/internal/event"
+	"github.com/Habibi-7/living-brain/tool/internal/event"
 )
 
 type Vault struct {

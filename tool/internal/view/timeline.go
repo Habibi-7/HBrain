@@ -5,9 +5,9 @@ import (
 	"io"
 	"time"
 
-	"github.com/Habibi-7/LSB/tool/internal/event"
-	"github.com/Habibi-7/LSB/tool/internal/render"
-	"github.com/Habibi-7/LSB/tool/internal/vault"
+	"github.com/Habibi-7/living-brain/tool/internal/event"
+	"github.com/Habibi-7/living-brain/tool/internal/render"
+	"github.com/Habibi-7/living-brain/tool/internal/vault"
 )
 
 func Timeline(w io.Writer, v *vault.Vault, days int) error {
