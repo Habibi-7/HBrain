@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Living Brain",
   "colors": {
-    "primary": "#8B5CF6",
-    "light": "#A78BFA",
-    "dark": "#7C3AED"
+    "primary": "#800000",
+    "light": "#A0282A",
+    "dark": "#600000"
   },
   "favicon": "/favicon.svg",
   "navigation": {
