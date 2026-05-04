@@ -33,6 +33,17 @@ The agent captures events as markdown files in a vault folder you own. Everythin
 | **Query** | How to find, filter, and aggregate events using file tools |
 | **Views** | How to render data using strict templates |
 
+## Custom skills
+
+The default second-brain skill is just the beginning. Create domain-specific skills for any workflow:
+
+```bash
+brain skill create "Meeting Notes" "Track meetings and action items"
+brain skill create "Research Tracker" "Papers, citations, reading notes"
+```
+
+Each skill gets its own `SKILL.md` — load it into your agent to activate a completely different capture workflow with custom event types and triggers. Skills share the same plain-markdown format, so they work with any agent that reads files.
+
 ## Supported agents
 
 Any agent that can read a markdown skill file and use file tools:
@@ -54,5 +65,8 @@ Any agent that can read a markdown skill file and use file tools:
   </Card>
   <Card title="Vault Structure" icon="folder-tree" href="/reference/vault-structure">
     What's on disk and how it's organized.
+  </Card>
+  <Card title="Custom Skills" icon="wand-magic-sparkles" href="/guides/skills">
+    Create your own skill for any domain or workflow.
   </Card>
 </CardGroup>

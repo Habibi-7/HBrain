@@ -57,6 +57,33 @@ Set `BRAIN_DIR` if your vault is not at `~/brain`:
 export BRAIN_DIR=~/Dropbox/brain
 ```
 
+## Custom skills
+
+Don't want a second brain? Build your own workflow. Each skill is a directory with a `SKILL.md` that defines its own event types, triggers, and capture rules.
+
+```bash
+brain skill create "Meeting Notes" "Track meetings and action items"
+brain skill create "Research Tracker" "Papers, citations, and reading notes"
+brain skill list
+brain skill show meeting-notes
+```
+
+Skills live at `~/brain/skills/`. Each one gets:
+- A `SKILL.md` — load this into your agent to activate the skill
+- A `vault/events/` directory — isolated event storage for that skill
+
+After creating, open the `SKILL.md` and customize:
+- **Event types** — replace the defaults with types that fit your domain
+- **Triggers** — phrases that activate capture
+- **Capture rules** — domain-specific instructions for the agent
+
+```bash
+# See where the skill file is, then open it in your editor
+brain skill path meeting-notes
+```
+
+Load the skill into your agent the same way you load the default brain skill — just point to that SKILL.md instead.
+
 ## How it works
 
 ```
@@ -65,11 +92,13 @@ You speak naturally
   → brain CLI reads vault, produces views
 ```
 
-The skill teaches your agent:
+The default skill teaches your agent:
 - **Schema** — 5 event types: `note` `task` `decision` `fact` `link`
 - **Capture** — write one file per thought, use your exact words
 - **Query** — find, filter, aggregate using file tools
 - **Views** — render using strict templates
+
+Or create a custom skill for any domain — meeting notes, research tracking, project logs, anything.
 
 ## Vault structure
 
@@ -79,6 +108,13 @@ The skill teaches your agent:
 │   └── YYYY/MM/DD/
 │       └── <ulid>-<slug>.md    # one file per thought
 ├── renders/
+├── skills/
+│   ├── meeting-notes/
+│   │   ├── SKILL.md            # custom skill definition
+│   │   └── vault/events/       # isolated event storage
+│   └── research-tracker/
+│       ├── SKILL.md
+│       └── vault/events/
 └── .brain/
     └── templates/
         └── timeline.html

@@ -35,7 +35,8 @@
             "pages": [
               "guides/capturing",
               "guides/querying",
-              "guides/views"
+              "guides/views",
+              "guides/skills"
             ]
           }
         ]
