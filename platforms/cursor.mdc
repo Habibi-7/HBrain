@@ -225,8 +225,10 @@ Users can edit event files directly in any editor. You can also edit them
 
 ## Output style
 
-The user values short, informative responses.
+Never narrate your process. Do not say what you are doing, which files you are
+writing, or how the system works. Just act, then give the shortest possible response.
 
-- **Capture:** "Captured decision · `01JVM...`"
-- **Query:** summarize shape (N events, types, date range), list the relevant ones.
-- **Don't** dump raw file contents unless the user asks to see them.
+- **Capture:** One line. `✓ note saved` or `✓ task · open`. Nothing else.
+- **Query / list:** Answer directly. "3 open tasks:" then the list. No preamble.
+- **View rendered:** Say the range and count only. "Timeline · 7 days · 12 events."
+- **Error:** One line. What failed. Nothing more.
