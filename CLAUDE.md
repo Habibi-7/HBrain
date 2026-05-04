@@ -1,24 +1,45 @@
 # CLAUDE.md — instructions for agents working on this repo
 
-This repo contains **Living Second Brain** — a skill that teaches computer agents to maintain a markdown-backed knowledge and task system.
+This repo contains **Living Second Brain** — a skill + CLI tool that captures and retrieves a markdown-backed knowledge and task system.
 
 ## Repo structure
 
 ```
 skill/
-├── SKILL.md              # THE PRODUCT — the skill document
+├── SKILL.md              # THE SKILL — capture rules for agents
 └── templates/
-    └── timeline.html     # strict view template
+    └── timeline.html     # Handlebars-style view template (reference)
+tool/                     # Go CLI — views/computation layer
+├── cmd/brain/main.go     # entry point
+├── internal/
+│   ├── event/            # YAML frontmatter parser
+│   ├── vault/            # vault discovery + walker
+│   ├── view/             # timeline, tasks, search, stale, stats
+│   └── render/           # HTML template engine (embedded templates)
+├── Makefile
+└── go.mod
 CONTEXT.md                # product vision and principles
 README.md                 # install + usage
 ```
 
-There is no code to build or test. The product is the skill document and templates.
+## Two layers
+
+- **Skill** (no code) — tells agents how to capture events as markdown files. Lives in agent's skill dir.
+- **Tool** (Go binary) — reads vault, produces views. `brain timeline`, `brain tasks`, `brain search`, etc.
+
+## Building the tool
+
+```bash
+cd tool && make build    # produces ./brain binary
+make install             # installs to $GOPATH/bin
+make cross               # cross-compile for all platforms
+```
 
 ## What to work on
 
-- **SKILL.md** — the skill that agents read. Capture rules, event schema, query patterns, view rendering instructions. Changes here change the product.
-- **Templates** — strict HTML/MD templates for views. Add new ones in `skill/templates/`.
+- **SKILL.md** — capture rules for agents. Changes here change how agents write events.
+- **tool/** — Go CLI for views and computation. Add new views here.
+- **Templates** — strict HTML templates in `tool/internal/render/templates/`.
 - **CONTEXT.md** — update when principles change. Not for every small decision.
 
 ## Rules
