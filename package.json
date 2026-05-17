@@ -1,10 +1,10 @@
 {
   "name": "hbrain",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Agent-native second brain skill installer",
   "license": "MIT",
   "bin": {
-    "hbrain": "bin/living-brain.js"
+    "hbrain": "bin/hbrain.js"
   },
   "files": [
     "bin/",
@@ -16,7 +16,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node bin/living-brain.js --help"
+    "test": "node bin/hbrain.js --help"
   },
   "repository": {
     "type": "git",

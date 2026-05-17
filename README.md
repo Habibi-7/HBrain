@@ -284,7 +284,7 @@ See [`STRUCTURE.md`](./STRUCTURE.md) for the current file/folder map.
 Important files:
 
 - `skill/SKILL.md`: canonical product skill.
-- `bin/`: zero-dependency npm/npx installer command.
+- `bin/hbrain.js`: zero-dependency npm/npx installer command.
 - `package.json`: npm package metadata for `hbrain`.
 - `install.sh`: source checkout installer.
 - `uninstall.sh`: source checkout uninstaller.

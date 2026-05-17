@@ -63,7 +63,7 @@ synthesis, and on-the-fly HTML artifacts.
 │           └── timeline.go                     # Filters recent events and passes them to the renderer.
 ├── .env.example                                # Example env vars for local vault path.
 ├── bin/                                        # npm/npx command entrypoint.
-│   └── living-brain.js                         # Zero-dependency installer exposed as `hbrain`.
+│   └── hbrain.js                               # Zero-dependency installer exposed as `hbrain`.
 ├── .gitignore                                  # Ignores env files, OS/editor noise, and local demo/test vaults.
 ├── CLAUDE.md                                   # Repo-specific instructions for coding agents working here.
 ├── CONTEXT.md                                  # Product vision: skill-first, markdown memory, HTML artifacts.

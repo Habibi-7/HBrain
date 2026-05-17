@@ -10,8 +10,6 @@ const SKILL_PATH = path.join(PACKAGE_ROOT, "skill", "SKILL.md");
 const TEMPLATE_DIR = path.join(PACKAGE_ROOT, "skill", "templates");
 const MANAGED_BEGIN = "<!-- BEGIN HBRAIN -->";
 const MANAGED_END = "<!-- END HBRAIN -->";
-const LEGACY_MANAGED_BEGIN = "<!-- BEGIN LIVING SECOND BRAIN -->";
-const LEGACY_MANAGED_END = "<!-- END LIVING SECOND BRAIN -->";
 
 function main() {
   const [command = "help", ...args] = process.argv.slice(2);
@@ -301,18 +299,11 @@ function removeManagedBlock(file, label) {
 }
 
 function removeManagedBlockText(text) {
-  let begin = MANAGED_BEGIN;
-  let endMarker = MANAGED_END;
-  let start = text.indexOf(begin);
-  if (start === -1) {
-    begin = LEGACY_MANAGED_BEGIN;
-    endMarker = LEGACY_MANAGED_END;
-    start = text.indexOf(begin);
-  }
+  const start = text.indexOf(MANAGED_BEGIN);
   if (start === -1) return text;
-  const end = text.indexOf(endMarker, start);
+  const end = text.indexOf(MANAGED_END, start);
   if (end === -1) return text;
-  return `${text.slice(0, start)}${text.slice(end + endMarker.length)}`;
+  return `${text.slice(0, start)}${text.slice(end + MANAGED_END.length)}`;
 }
 
 function removeOwnedFile(file, label) {
@@ -330,14 +321,12 @@ function removeOwnedFile(file, label) {
 
 function looksOwned(file) {
   if (!fs.existsSync(file)) return false;
-  const content = fs.readFileSync(file, "utf8");
-  return content.includes("HBrain") || content.includes("Living Second Brain");
+  return fs.readFileSync(file, "utf8").includes("HBrain");
 }
 
 function hasManagedBlock(file) {
   if (!fs.existsSync(file)) return false;
-  const content = fs.readFileSync(file, "utf8");
-  return content.includes(MANAGED_BEGIN) || content.includes(LEGACY_MANAGED_BEGIN);
+  return fs.readFileSync(file, "utf8").includes(MANAGED_BEGIN);
 }
 
 function readSkill() {
