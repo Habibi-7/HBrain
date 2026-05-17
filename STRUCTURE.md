@@ -28,25 +28,6 @@ synthesis, and on-the-fly HTML artifacts.
 │       ├── nifty-jackson-d4e54a/                # Empty/local agent worktree artifact.
 │       ├── sweet-wiles-4a0ab8/                  # Empty/local agent worktree artifact.
 │       └── zealous-lovelace-9ea88c/             # Empty/local agent worktree artifact.
-├── docs/                                        # Mintlify documentation site source.
-│   ├── docs.json                                # Mintlify config: theme, nav, logo, links, and page groups.
-│   ├── favicon.svg                              # Documentation site favicon.
-│   ├── introduction.mdx                         # High-level intro to Living Brain as an agent skill.
-│   ├── quickstart.mdx                           # Install, vault setup, first capture, and first queries.
-│   ├── guides/                                  # How-to docs for using and extending the system.
-│   │   ├── capturing.mdx                        # Semantic capture, one-file-per-thought, phrasing, paths, confirmations, backdating.
-│   │   ├── querying.mdx                         # Natural-language retrieval and the file/shell patterns agents use.
-│   │   ├── skills.mdx                           # Custom skill creation, frontmatter, loading, sharing, and versioning.
-│   │   └── views.mdx                            # Timeline/task views, strict templates, fallback formatting, and saved renders.
-│   ├── logo/                                    # Documentation logo assets.
-│   │   ├── dark.svg                             # Logo for dark-background docs contexts.
-│   │   └── light.svg                            # Logo for light-background docs contexts.
-│   └── reference/                               # Stable reference docs for schema and vault structure.
-│       ├── event-types.mdx                      # The five supported event types and when to use each.
-│       ├── frontmatter.mdx                      # YAML schema, required/optional fields, and immutable identifiers.
-│       ├── html-artifacts.mdx                   # Contract for agent-generated HTML views.
-│       ├── templates.mdx                        # Default templates plus generated HTML artifact behavior.
-│       └── vault-structure.mdx                  # On-disk vault layout for events, renders, skills, and templates.
 ├── platforms/                                   # Notes on generated platform adapters.
 │   └── README.md                                # Explains generated install paths and the canonical `skill/SKILL.md` source.
 ├── skill/                                       # Canonical product skill and templates.
@@ -80,7 +61,7 @@ synthesis, and on-the-fly HTML artifacts.
 │           ├── stats.go                        # Summarizes counts by type, task status, date range, and top tags.
 │           ├── tasks.go                        # Lists task events, optionally filtered by status.
 │           └── timeline.go                     # Filters recent events and passes them to the renderer.
-├── .env.example                                # Example env vars for local vault path and Mintlify docs deployment.
+├── .env.example                                # Example env vars for local vault path.
 ├── .gitignore                                  # Ignores env files, OS/editor noise, and local demo/test vaults.
 ├── CLAUDE.md                                   # Repo-specific instructions for coding agents working here.
 ├── CONTEXT.md                                  # Product vision: skill-first, markdown memory, HTML artifacts.
