@@ -38,17 +38,18 @@ Default to keeping the vault.
 
 ## 2. Run The Uninstaller
 
-Private repo, when `gh` is authenticated:
-
-```bash
-gh api -H "Accept: application/vnd.github.v3.raw" /repos/Habibi-7/living-brain/contents/uninstall.sh | sh
-```
-
 Public repo:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/uninstall.sh | sh
 ```
+
+If `raw.githubusercontent.com` is blocked, stop and report the network
+restriction. Do not clone the repo as a workaround unless the user explicitly
+asks you to clone it.
+
+If the user asks for manual cleanup, remove only known Living Second Brain files
+and keep the vault unless they explicitly request vault deletion.
 
 If the user explicitly wants everything deleted, including saved notes:
 

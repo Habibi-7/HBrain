@@ -25,6 +25,7 @@ visual views.
 - Default the vault to `~/brain` if the user has no preference.
 - Do not overwrite an existing vault.
 - Do not require the user to run commands if you can run them.
+- Do not clone the repository unless the user explicitly asks you to.
 - If a command fails, explain the exact blocker and the next action.
 
 ## 1. Confirm Setup
@@ -40,12 +41,6 @@ If the user chooses another path, use that path as `BRAIN_DIR`.
 ## 2. Install The Skill And CLI
 
 Prefer the one-line installer.
-
-Private repo, when `gh` is authenticated:
-
-```bash
-gh api -H "Accept: application/vnd.github.v3.raw" /repos/Habibi-7/living-brain/contents/install.sh | sh
-```
 
 Public repo:
 
@@ -74,6 +69,12 @@ The `brain` CLI is optional. To install only the agent skill/rule:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --cursor --no-cli
 ```
+
+### If installation fails
+
+Stop and report the exact blocker. Do not partially install from copied web-page
+content. Do not clone the repo as a workaround unless the user explicitly asks
+you to clone it.
 
 If you are already inside a local checkout of this repository, use the local
 installer so platform wrappers are generated from `skill/SKILL.md`:

@@ -45,12 +45,17 @@ likely to matter later.
 Paste this into your agent:
 
 ```text
-Retrieve and follow the instructions at:
-https://raw.githubusercontent.com/Habibi-7/living-brain/main/INSTALL_FOR_AGENTS.md
+Open and follow this GitHub file:
+https://github.com/Habibi-7/living-brain/blob/main/INSTALL_FOR_AGENTS.md
 ```
 
 The agent will ask where to keep your vault, install the right skill/rule for
 your platform, optionally install the helper CLI, and verify the setup.
+
+Use the GitHub `blob` URL for agents because some agent sandboxes can access
+`github.com` but block `raw.githubusercontent.com`. If the installer cannot
+fetch the raw files, the agent should stop and report that network restriction
+instead of cloning or doing a partial manual install.
 
 Default vault:
 
@@ -253,8 +258,8 @@ curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/uninstal
 For agent-led uninstall, paste:
 
 ```text
-Retrieve and follow the instructions at:
-https://raw.githubusercontent.com/Habibi-7/living-brain/main/UNINSTALL_FOR_AGENTS.md
+Open and follow this GitHub file:
+https://github.com/Habibi-7/living-brain/blob/main/UNINSTALL_FOR_AGENTS.md
 ```
 
 ## Repository Map
