@@ -104,9 +104,10 @@ Then update the event types table in the body to describe when to use each one:
 task_statuses: [open, done, delegated, cancelled]
 ```
 
-### Add trigger phrases
+### Add discovery hints
 
-Add phrases that activate capture for this skill:
+Add phrases that help an agent discover the skill. These are hints, not a
+replacement for judgment:
 
 ```yaml
 triggers:
@@ -157,7 +158,9 @@ ln -s ~/brain/skills/meeting-notes/SKILL.md ~/.claude/skills/meeting-notes.md
 
 **Other agents:** Load the SKILL.md content wherever your agent platform reads skill files.
 
-Once loaded, the agent responds to the triggers you defined and writes events to that skill's vault path.
+Once loaded, the agent uses the skill's domain rules and writes matching events
+to that skill's vault path. Trigger phrases help discovery, but the body of the
+skill should describe the actual judgment.
 
 ## Running multiple skills
 

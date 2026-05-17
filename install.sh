@@ -7,6 +7,7 @@ REPO_REF="main"
 REPO_RAW="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/$REPO_REF"
 REPO_API="/repos/$REPO_OWNER/$REPO_NAME/contents"
 SKILL_INSTALLED=0
+INSTALL_CLI=1
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -18,26 +19,75 @@ die()     { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 # fetch <repo-path> <local-dest>
 # Priority: gh api (authed) > curl+GH_TOKEN > curl raw (public only)
 fetch() {
-  path="$1"; dest="$2"
-  mkdir -p "$(dirname "$dest")"
+  fetch_path="$1"; fetch_dest="$2"
+  mkdir -p "$(dirname "$fetch_dest")"
 
-  if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
-    gh api -H "Accept: application/vnd.github.v3.raw" "$REPO_API/$path?ref=$REPO_REF" > "$dest"
+  if [ -f "$fetch_path" ]; then
+    cp "$fetch_path" "$fetch_dest"
+  elif command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    gh api -H "Accept: application/vnd.github.v3.raw" "$REPO_API/$fetch_path?ref=$REPO_REF" > "$fetch_dest"
   elif command -v curl >/dev/null 2>&1; then
     if [ -n "$GH_TOKEN" ]; then
-      curl -fsSL -H "Authorization: token $GH_TOKEN" "$REPO_RAW/$path" -o "$dest"
+      curl -fsSL -H "Authorization: token $GH_TOKEN" "$REPO_RAW/$fetch_path" -o "$fetch_dest"
     else
-      curl -fsSL "$REPO_RAW/$path" -o "$dest"
+      curl -fsSL "$REPO_RAW/$fetch_path" -o "$fetch_dest"
     fi
   elif command -v wget >/dev/null 2>&1; then
     if [ -n "$GH_TOKEN" ]; then
-      wget -qO "$dest" --header="Authorization: token $GH_TOKEN" "$REPO_RAW/$path"
+      wget -qO "$fetch_dest" --header="Authorization: token $GH_TOKEN" "$REPO_RAW/$fetch_path"
     else
-      wget -qO "$dest" "$REPO_RAW/$path"
+      wget -qO "$fetch_dest" "$REPO_RAW/$fetch_path"
     fi
   else
     die "gh, curl, or wget required"
   fi
+}
+
+strip_skill_frontmatter() {
+  awk '
+    BEGIN { marks = 0 }
+    /^---[[:space:]]*$/ && marks < 2 { marks++; next }
+    marks >= 2 { print }
+  ' "$1"
+}
+
+write_platform_skill() {
+  platform_name="$1"; agent_name="$2"; output_path="$3"
+  skill_tmp="${TMPDIR:-/tmp}/brain-skill-$$.md"
+  fetch "skill/SKILL.md" "$skill_tmp"
+  mkdir -p "$(dirname "$output_path")"
+
+  case "$platform_name" in
+    cursor)
+      {
+        printf '%s\n' '---'
+        printf '%s\n' 'description: Living Second Brain — semantic memory, retrieval, and HTML artifacts'
+        printf '%s\n' 'alwaysApply: true'
+        printf '%s\n\n' '---'
+        strip_skill_frontmatter "$skill_tmp" | sed "s/agent: <agent-name>/agent: $agent_name/g"
+      } > "$output_path"
+      ;;
+    windsurf)
+      {
+        printf '%s\n' '---'
+        printf '%s\n' 'description: Living Second Brain — semantic memory, retrieval, and HTML artifacts'
+        printf '%s\n' 'alwaysApply: true'
+        printf '%s\n\n' '---'
+        strip_skill_frontmatter "$skill_tmp" | sed "s/agent: <agent-name>/agent: $agent_name/g"
+      } > "$output_path"
+      ;;
+    copilot)
+      {
+        printf '%s\n' '<!-- Installed by Living Second Brain. Source: skill/SKILL.md -->'
+        strip_skill_frontmatter "$skill_tmp" | sed "s/agent: <agent-name>/agent: $agent_name/g"
+      } > "$output_path"
+      ;;
+    *)
+      die "unknown platform generator: $platform_name"
+      ;;
+  esac
+
+  rm -f "$skill_tmp"
 }
 
 # ── skill install ─────────────────────────────────────────────────────────────
@@ -51,21 +101,21 @@ install_claude_code() {
 
 install_cursor() {
   dest="${1:-.}/.cursor/rules/brain.mdc"
-  fetch "platforms/cursor.mdc" "$dest"
+  write_platform_skill cursor cursor "$dest"
   ok "Cursor       →  $dest"
   SKILL_INSTALLED=1
 }
 
 install_windsurf() {
   dest="${1:-.}/.windsurf/rules/brain.md"
-  fetch "platforms/windsurf.md" "$dest"
+  write_platform_skill windsurf windsurf "$dest"
   ok "Windsurf     →  $dest"
   SKILL_INSTALLED=1
 }
 
 install_copilot() {
   dest="${1:-.}/.github/copilot-instructions.md"
-  fetch "platforms/copilot.md" "$dest"
+  write_platform_skill copilot copilot "$dest"
   ok "Copilot      →  $dest"
   SKILL_INSTALLED=1
 }
@@ -99,6 +149,7 @@ for arg in "$@"; do
     --windsurf)  PLATFORM=windsurf ;;
     --copilot)   PLATFORM=copilot ;;
     --claude)    PLATFORM=claude ;;
+    --no-cli|--skill-only) INSTALL_CLI=0 ;;
   esac
 done
 
@@ -128,10 +179,15 @@ else
     warn "  --cursor    →  .cursor/rules/brain.mdc"
     warn "  --windsurf  →  .windsurf/rules/brain.mdc"
     warn "  --copilot   →  .github/copilot-instructions.md"
+    warn "  --no-cli    →  install only the skill/rule, skip optional CLI"
   fi
 fi
 
-install_brain_cli
+if [ "$INSTALL_CLI" -eq 1 ]; then
+  install_brain_cli
+else
+  info "Skipping optional brain CLI (--no-cli)"
+fi
 
 echo ""
 [ "$SKILL_INSTALLED" -eq 1 ] && ok "Done. Set BRAIN_DIR=~/brain or let the agent ask on first use." \

@@ -8,6 +8,11 @@
 .vscode/
 .idea/
 *.swp
+.claude/worktrees/
+
+# Generated caches
+__pycache__/
+*.pyc
 
 # Test / demo vaults
 /vault/

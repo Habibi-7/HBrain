@@ -1,6 +1,6 @@
 ---
-title: Templates
-description: "Strict view templates that give every view a consistent layout."
+title: Templates and HTML Artifacts
+description: "Default templates plus the rules for agent-generated HTML views."
 ---
 
 ## What templates do
@@ -12,8 +12,9 @@ When you ask for a view ("show my week", "my open tasks"), the agent:
 3. **Fills** the `{{placeholder}}` slots with event data
 4. **Presents** the rendered view
 
-The template defines the layout. The agent fills slots — it doesn't improvise.
-Same template = same look every time, across agents and sessions.
+Templates define stable default layouts. The agent fills slots when a template
+matches, but templates are not cages. If the user asks for a new design, the
+agent can generate a fresh HTML artifact while following the artifact rules.
 
 ## Available templates
 
@@ -36,5 +37,13 @@ Teams sharing a vault can share templates — everyone sees identical views.
 
 ## Fallback
 
-If no template exists for a requested view, the agent presents the data in a
-clean default format.
+If no template exists for a visual request, the agent generates a self-contained
+HTML artifact.
+
+HTML artifact rules:
+
+- Inline CSS and SVG; no external network dependencies.
+- Semantic HTML and readable contrast.
+- Include provenance: date range, filters, event count, and generation time.
+- Never invent source data.
+- Do not mutate the vault from generated HTML.

@@ -5,22 +5,24 @@ description: "Install the skill and capture your first event."
 
 ## Install
 
-### Claude Code / Cowork
+Use the installer so platform wrappers are generated from the canonical
+`skill/SKILL.md`:
 
 ```bash
-cp -r skill/SKILL.md ~/.claude/skills/brain/SKILL.md
+sh install.sh --cursor    # or --claude, --windsurf, --copilot
 ```
 
-Then copy templates to your vault (after creating one):
+Then create your vault and copy templates:
 
 ```bash
-mkdir -p ~/brain/.brain/templates
+mkdir -p ~/brain/events ~/brain/renders ~/brain/.brain/templates
 cp skill/templates/* ~/brain/.brain/templates/
 ```
 
 ### Other agents
 
-The skill is a self-contained markdown document. Install it however your agent platform supports loading skills.
+The skill is a self-contained markdown document. Load `skill/SKILL.md` wherever
+your agent platform accepts skills, rules, or system prompt additions.
 
 ## Set a vault path
 
@@ -36,7 +38,7 @@ If `$BRAIN_DIR` isn't set, the agent will ask you once and remember the path.
 
 Just talk to your agent:
 
-> "Remember that I decided to use Postgres for its native JSON support."
+> "I think Postgres is the right call because of its native JSON support."
 
 The agent creates a file like:
 
@@ -58,7 +60,7 @@ tags: [backend, database]
 links: []
 ---
 
-Decided to use Postgres for its native JSON support.
+I think Postgres is the right call because of its native JSON support.
 ```
 
 The agent confirms: "Captured decision · `01JVM...`"
@@ -69,9 +71,12 @@ The agent confirms: "Captured decision · `01JVM...`"
 
 > "Show my week"
 
+> "Show my week as a visual timeline"
+
 > "List my open tasks"
 
-The agent reads your vault files and responds.
+The agent reads your vault files and responds. Simple questions can stay in
+chat. Visual requests should become self-contained HTML artifacts.
 
 ## What's next
 

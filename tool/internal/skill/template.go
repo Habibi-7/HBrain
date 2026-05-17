@@ -26,7 +26,7 @@ func renderSkillTemplate(sk *Skill) string {
 	fmt.Fprintf(&b, "task_statuses: [%s]\n", strings.Join(sk.TaskStatuses, ", "))
 	fmt.Fprintf(&b, "vault_path: %s\n", sk.VaultPath)
 	b.WriteString("triggers:\n")
-	b.WriteString("  # Add trigger phrases that activate this skill\n")
+	b.WriteString("  # Discovery hints. The body below defines the real judgment.\n")
 	fmt.Fprintf(&b, "  - %s\n", sk.Name)
 	fmt.Fprintf(&b, "  - /%s\n", sk.Name)
 	b.WriteString("---\n\n")
@@ -46,7 +46,7 @@ func renderSkillTemplate(sk *Skill) string {
 	b.WriteString("---\n\n")
 
 	b.WriteString("## 2. Capturing events\n\n")
-	b.WriteString("When the user says something worth remembering, **write a markdown file**.\n\n")
+	b.WriteString("Use judgment. When the user says something in this domain with future value, **write a markdown file**.\n\n")
 	b.WriteString("### File path\n\n")
 	b.WriteString("```\n")
 	fmt.Fprintf(&b, "%s/events/YYYY/MM/DD/<ulid>-<slug>.md\n", sk.VaultPath)
@@ -90,7 +90,8 @@ func renderSkillTemplate(sk *Skill) string {
 	b.WriteString("### Capture rules\n\n")
 	b.WriteString("1. **Use the user's phrasing.** Don't paraphrase or correct.\n")
 	b.WriteString("2. **One thought per file.** Three thoughts = three files.\n")
-	b.WriteString("3. **Capture silently when in doubt.** Lost thought > stray event.\n\n")
+	b.WriteString("3. **Do not depend on exact trigger phrases.** They are discovery hints only.\n")
+	b.WriteString("4. **Capture silently when in doubt.** Lost thought > stray event.\n\n")
 	b.WriteString("---\n\n")
 
 	b.WriteString("## 3. Querying events\n\n")

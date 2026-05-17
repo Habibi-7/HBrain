@@ -1,0 +1,44 @@
+---
+title: HTML Artifacts
+description: "How agents create rich visual views from the markdown vault."
+---
+
+## Purpose
+
+Markdown is the source of truth. HTML is the view layer.
+
+Use HTML when the user asks for something visual, navigable, or easier to scan
+as a composed artifact:
+
+- Timelines
+- Calendars
+- Heatmaps
+- Dashboards
+- Task boards
+- Graphs
+- Weekly reviews
+- Project progress views
+- Comparisons
+
+Simple lookup questions should stay in chat.
+
+## Contract
+
+Every generated artifact should be:
+
+- **Self-contained** — inline CSS, inline SVG when needed, no external network dependencies.
+- **Honest** — no invented events, counts, dates, links, or citations.
+- **Traceable** — include date range, filters, event count, and generation time.
+- **Readable** — semantic HTML, good contrast, responsive layout.
+- **Safe** — do not mutate the vault from generated HTML.
+
+Save artifacts to `$BRAIN_DIR/renders/` only when the user asks to save or share
+the view.
+
+## Templates
+
+Templates are defaults for repeat views. They create consistency.
+
+If the user dislikes a template, or asks for a different visual treatment, the
+agent may design a new HTML artifact while preserving the source data and the
+contract above.

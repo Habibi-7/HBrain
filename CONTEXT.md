@@ -8,7 +8,7 @@
 
 A **living second brain**: a personal knowledge, task, and thinking system backed by plain markdown files the user owns.
 
-The product is a **skill** — a document that teaches a computer agent how to capture, query, and present the user's knowledge. No app. No CLI. No package to install. The computer agent already has file tools, bash, and natural language understanding. We teach it our opinions.
+The product is a **skill** — a document that teaches a computer agent how to capture, query, and present the user's knowledge. The core experience should not require an app, server, or mandatory CLI. The computer agent already has file tools, bash, and natural language understanding. We teach it our opinions.
 
 The agent is the mouth and ears. Our skill is the hippocampus.
 
@@ -18,10 +18,12 @@ Computer agents (Cowork, Manus, Claude Code, etc.) already have filesystem acces
 
 Our product is:
 1. **An opinionated schema** — how events are structured (frontmatter, types, folder layout)
-2. **Strict templates** — how views look (timeline, heatmap, task board)
-3. **A skill document** — teaches any computer agent both of the above
+2. **HTML artifact rules** — when and how views become rich visual artifacts
+3. **Strict default templates** — stable starting points for repeat views
+4. **A skill document** — teaches any computer agent all of the above
 
-That's it. Everything else is the agent's native capability.
+Everything else is either the agent's native capability or an optional helper
+for deterministic work.
 
 ## Who it's for
 
@@ -35,10 +37,10 @@ Teams benefit from the strict template system: everyone sees identical views.
 ┌──────────────────────────────────────────────┐
 │  Computer Agent (Cowork / Manus / Claude Code)│
 │                                              │
-│  • Reads our skill → learns schema + rules   │
+│  • Reads our skill → learns schema + taste   │
 │  • Captures: writes markdown event files     │
 │  • Queries: reads files, filters, aggregates │
-│  • Renders: fills our templates, presents    │
+│  • Renders: answers or creates HTML artifacts│
 └──────────────┬───────────────────────────────┘
                │ reads/writes
                ▼
@@ -64,16 +66,17 @@ Three criteria from Hugentobler's "Feeding Computer Agents":
 
 ### The skill is the product
 
-- No package to install. No binary. No server.
-- The skill document teaches the agent everything: schema, capture rules, query patterns, view rendering.
+- No mandatory package, binary, app, or server.
+- The skill document teaches the agent everything: schema, semantic capture, query patterns, and HTML artifact rules.
 - Works with any agent that can read files and run bash.
 - Distribution = copying a folder.
 
-### Strict templates
+### HTML artifacts, with templates as defaults
 
-- Templates define how views look. The agent fills slots, doesn't improvise.
-- Consistency across users, sessions, and team members.
-- Templates are versioned. Same template = same visual output.
+- Markdown is the source of truth. HTML is the view layer.
+- The agent generates self-contained HTML for visual views: timelines, dashboards, heatmaps, task boards, and project progress.
+- Templates define stable default layouts, but the user can ask for a redesign.
+- Generated HTML never mutates the vault.
 
 ### Plain markdown
 
@@ -94,7 +97,9 @@ Five types. Use only these:
 
 ## Views
 
-Views are what make the brain worth having. Each view = a query pattern + a template:
+Views are what make the brain worth having. Simple questions stay in chat.
+Visual views become self-contained HTML artifacts, optionally using a default
+template:
 
 | View | What it shows |
 | --- | --- |
@@ -104,7 +109,7 @@ Views are what make the brain worth having. Each view = a query pattern + a temp
 | Task board | Open / done / blocked grouped |
 | Decision log | Chronological decisions |
 
-Start with timeline. Add views as templates are created.
+Start with timeline. Add views as artifact rules and templates mature.
 
 ## What we own vs. what the agent owns
 
@@ -112,16 +117,18 @@ Start with timeline. Add views as templates are created.
 | --- | --- |
 | Event schema + frontmatter format | Us (the skill) |
 | Vault folder conventions | Us (the skill) |
-| Templates | Us (strict files) |
+| HTML artifact contract | Us (the skill) |
+| Templates | Us (default files) |
 | File writing (capture) | Agent (native capability) |
 | File reading (query) | Agent (native capability) |
-| Rendering (filling templates) | Agent |
+| Rendering / redesigning views | Agent |
 | Presentation to user | Agent |
+| Mechanical helpers (optional CLI/scripts) | Us, but optional |
 
 ## Open questions
 
-- Template format (current: HTML with `{{placeholders}}`; consider Markdown-only for simpler rendering)
-- How to distribute templates (bundled with skill vs. separate repo vs. in-vault)
+- How opinionated default HTML views should be before they feel restrictive
+- How to distribute templates (bundled with skill vs. generated by agent vs. in-vault)
 - Scale strategy when vault exceeds ~500 events (optional CLI/index layer?)
 - Multi-agent consistency (what if different agents write slightly different frontmatter?)
 

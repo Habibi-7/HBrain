@@ -13,13 +13,14 @@ description: "Rendered summaries of your vault — timelines, task lists, digest
 
 > "List my open tasks"
 
-The agent queries your vault and renders the result using a template if one exists.
+The agent queries your vault and chooses the right surface. Simple information
+questions can stay in chat. Visual requests should become self-contained HTML
+artifacts.
 
 ## Timeline view
 
-The main view. Shows events in chronological order with type, tags, and a brief summary.
-
-Trigger phrases: "show my week", "my timeline", "recent events", "what happened this week"
+The main view. Shows events in chronological order with type, tags, and a brief
+summary.
 
 Uses `timeline.html` from `.brain/templates/`.
 
@@ -27,13 +28,29 @@ Uses `timeline.html` from `.brain/templates/`.
 
 Shows open (or filtered) tasks.
 
-Trigger phrases: "list my open tasks", "my todos", "what do I have to do"
+Short task answers can be text. Boards, grouped views, or priority dashboards
+should be HTML artifacts.
+
+## HTML artifacts
+
+Use HTML for timelines, calendars, heatmaps, dashboards, boards, graphs,
+comparisons, weekly reviews, and project progress.
+
+Rules:
+
+- Keep the artifact self-contained: inline CSS, inline SVG if needed, no network dependencies.
+- Include provenance: date range, filters, event count, and generation time.
+- Do not invent events, counts, dates, or links.
+- Do not let the HTML mutate the vault. HTML is a view.
+- Save to `$BRAIN_DIR/renders/` only when the user asks to save or share.
 
 ## Consistency
 
-Templates make views consistent. Ask for "my week" today and next month — you get the same layout, making it easy to compare across periods.
+Templates make repeat views consistent. Ask for "my week" today and next month
+and the view should feel familiar.
 
-If no template exists for a view type, the agent presents data cleanly in its default format.
+If no template exists, the agent can design a new HTML artifact. If the user says
+they dislike a view, the agent can redesign it while preserving the source data.
 
 ## Saving a view
 

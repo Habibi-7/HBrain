@@ -3,16 +3,20 @@ title: Capturing Events
 description: "How the agent writes event files when you say something worth remembering."
 ---
 
-## Trigger phrases
+## Semantic capture
 
-The agent captures when you say things like:
+The agent should not rely on exact trigger phrases. It captures when you say
+something with likely future value:
 
-- "Remember that…" / "Note that…" / "Save this…"
-- "I decided…" / "We decided…" / "I'm going with…"
-- "I should…" / "Remind me to…" / "TODO…"
-- "Bookmark this…" / "Add to my brain…"
+- A plan, goal, intention, commitment, task, or deadline.
+- A decision and the reason behind it.
+- A preference, principle, recurring concern, or personal context.
+- A useful fact, quote, source, link, or reference.
+- A project update, milestone, blocker, or change in direction.
 
-When in doubt, the agent captures silently. A lost thought is worse than a stray event.
+Phrases like "remember this" and "I decided" are examples, not requirements.
+When in doubt, the agent captures a small note. A lost thought is worse than a
+stray event.
 
 ## One file per thought
 

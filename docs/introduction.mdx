@@ -5,33 +5,38 @@ description: "A skill that teaches your agent to maintain a personal knowledge a
 
 # Living Brain
 
-**No app. No CLI. No package.**
+**Markdown memory. LLM judgment. HTML artifacts.**
 
-Your agent already knows how to write files — this skill teaches it *what* to write and *how* to present it.
+Your agent already knows how to reason and write files. This skill teaches it
+what is worth keeping, how to structure it, and when to turn it into a rich view.
 
 ```
-You speak naturally → Agent writes structured markdown → Agent queries + renders views
+You speak naturally → Agent captures durable signals → Agent answers or renders HTML views
 ```
 
 ## How it works
 
 Install the skill into your agent. Then talk naturally:
 
-- "Remember that I chose Postgres for the JSON support"
+- "I think Postgres is the right call because of the JSON support"
 - "I need to review the proposal by Friday"
 - "What did I decide about the database?"
-- "Show my week"
+- "Show my week as a timeline"
 
-The agent captures events as markdown files in a vault folder you own. Everything is plain text — sync it with Git, iCloud, Obsidian, or whatever you already use.
+The agent captures events as markdown files in a vault folder you own. Simple
+questions get answered directly. Visual requests become self-contained HTML
+artifacts. Everything durable stays plain text — sync it with Git, iCloud,
+Obsidian, or whatever you already use.
 
 ## What the skill teaches
 
 | Capability | What it does |
 |-----------|-------------|
 | **Schema** | How to structure events (5 types: note, task, decision, fact, link) |
-| **Capture** | When and how to write event files |
+| **Capture** | How to notice durable signals without relying on exact trigger phrases |
 | **Query** | How to find, filter, and aggregate events using file tools |
-| **Views** | How to render data using strict templates |
+| **Views** | When to answer in text vs. generate self-contained HTML artifacts |
+| **Helpers** | How to use optional scripts/CLI for deterministic work without depending on them |
 
 ## Custom skills
 
@@ -65,6 +70,9 @@ Any agent that can read a markdown skill file and use file tools:
   </Card>
   <Card title="Vault Structure" icon="folder-tree" href="/reference/vault-structure">
     What's on disk and how it's organized.
+  </Card>
+  <Card title="HTML Artifacts" icon="window-maximize" href="/reference/html-artifacts">
+    Rich visual views generated from markdown memory.
   </Card>
   <Card title="Custom Skills" icon="wand-magic-sparkles" href="/guides/skills">
     Create your own skill for any domain or workflow.

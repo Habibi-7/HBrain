@@ -27,7 +27,8 @@
               "reference/event-types",
               "reference/frontmatter",
               "reference/vault-structure",
-              "reference/templates"
+              "reference/templates",
+              "reference/html-artifacts"
             ]
           },
           {
