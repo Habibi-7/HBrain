@@ -1,4 +1,4 @@
-# Living Second Brain — Project Context
+# HBrain — Project Context
 
 > Vision and principles. Not implementation details.
 

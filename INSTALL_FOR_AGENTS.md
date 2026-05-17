@@ -1,6 +1,6 @@
-# Install Living Second Brain For Agents
+# Install HBrain For Agents
 
-You are an AI agent setting up Living Second Brain for a non-technical user.
+You are an AI agent setting up HBrain for a non-technical user.
 Do the work yourself when you have terminal access. Ask the user only for
 permission, credentials, or a vault location preference.
 
@@ -33,41 +33,41 @@ visual views.
 Ask:
 
 ```text
-I can set up Living Second Brain for you. It stores plain markdown notes in a local folder. Use ~/brain as the vault?
+I can set up HBrain for you. It stores plain markdown notes in a local folder. Use ~/brain as the vault?
 ```
 
 If the user chooses another path, use that path as `BRAIN_DIR`.
 
-## 2. Install The Skill And CLI
+## 2. Install HBrain
 
-Prefer the one-line installer.
+Use the npm installer. Do not use raw GitHub URLs as the primary install path.
 
-Public repo:
+Default:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh
+npx hbrain install
 ```
 
 If you know the target platform, pass the matching flag:
 
 ```bash
 # Cursor
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --cursor
+npx hbrain install --cursor
 
 # Claude Code / Cowork
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --claude
+npx hbrain install --claude
 
 # OpenAI Codex
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --codex
+npx hbrain install --codex
 
 # Windsurf
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --windsurf
+npx hbrain install --windsurf
 ```
 
-The `brain` CLI is optional. To install only the agent skill/rule:
+Use a custom vault:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --cursor --no-cli
+npx hbrain install --cursor --vault ~/Dropbox/brain
 ```
 
 ### If installation fails
@@ -150,7 +150,7 @@ the user's shell path if needed.
 Tell the user only:
 
 ```text
-Living Second Brain is ready. You can talk naturally, ask for your open tasks, or ask for a visual timeline.
+HBrain is ready. You can talk naturally, ask for your open tasks, or ask for a visual timeline.
 ```
 
 Do not explain the implementation unless the user asks.

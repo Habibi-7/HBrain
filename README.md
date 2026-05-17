@@ -1,9 +1,9 @@
-# Living Second Brain
+# HBrain
 
-Living Second Brain is a skill for computer agents. It teaches Cursor, Claude
-Code/Cowork, OpenAI Codex, Windsurf, and similar agents to notice durable
-thoughts in natural conversation, save them as plain markdown files you own, and
-render useful HTML views when you ask.
+HBrain is a skill for computer agents. It teaches Cursor, Claude Code/Cowork,
+OpenAI Codex, Windsurf, and similar agents to notice durable thoughts in natural
+conversation, save them as plain markdown files you own, and render useful HTML
+views when you ask.
 
 The core idea:
 
@@ -13,6 +13,9 @@ Markdown memory + LLM judgment + HTML artifacts
 
 No database is required. No server is required. The optional `brain` CLI is only
 a helper for mechanical work like counts, task lists, and default timelines.
+
+HBrain is open source. The npm package is only the installer transport; the
+source, skill, templates, and installer code live in this public repository.
 
 ## What It Feels Like
 
@@ -45,17 +48,13 @@ likely to matter later.
 Paste this into your agent:
 
 ```text
-Open and follow this GitHub file:
-https://github.com/Habibi-7/living-brain/blob/main/INSTALL_FOR_AGENTS.md
+Install HBrain for me with:
+npx hbrain install
 ```
 
 The agent will ask where to keep your vault, install the right skill/rule for
-your platform, optionally install the helper CLI, and verify the setup.
-
-Use the GitHub `blob` URL for agents because some agent sandboxes can access
-`github.com` but block `raw.githubusercontent.com`. If the installer cannot
-fetch the raw files, the agent should stop and report that network restriction
-instead of cloning or doing a partial manual install.
+your platform, create the vault folders, copy default templates, and verify the
+setup.
 
 Default vault:
 
@@ -65,26 +64,32 @@ Default vault:
 
 ## Install Yourself
 
-The public installer auto-detects supported agent platforms and installs the
+The npm installer auto-detects supported agent platforms and installs the
 skill in the right place:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh
+npx hbrain install
 ```
 
 Install for a specific platform:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --cursor
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --claude
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --codex
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --windsurf
+npx hbrain install --cursor
+npx hbrain install --claude
+npx hbrain install --codex
+npx hbrain install --windsurf
 ```
 
-Install only the agent skill/rule and skip the optional CLI:
+Use a custom vault path:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --cursor --no-cli
+npx hbrain install --cursor --vault ~/Dropbox/brain
+```
+
+Skip vault folder/template setup:
+
+```bash
+npx hbrain install --cursor --no-vault
 ```
 
 Platform install paths:
@@ -99,6 +104,14 @@ Platform install paths:
 
 Platform wrappers are generated from `skill/SKILL.md`, so the skill has one
 source of truth.
+
+Source install is still available for contributors:
+
+```bash
+git clone https://github.com/Habibi-7/living-brain.git
+cd living-brain
+sh install.sh --cursor --no-cli
+```
 
 ## How It Works
 
@@ -245,21 +258,23 @@ A custom skill gets its own `SKILL.md` and isolated event vault. Customize:
 Remove the skill/rules and optional CLI, keeping your saved notes vault:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/uninstall.sh | sh
+npx hbrain uninstall
 ```
 
-Also delete the vault (`$BRAIN_DIR` or `~/brain`) only if you want all saved
-brain data gone:
+Target one platform:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/uninstall.sh | sh -s -- --purge-vault --yes
+npx hbrain uninstall --codex
 ```
 
-For agent-led uninstall, paste:
+The uninstaller keeps your vault. Delete `~/brain` manually only if you want all
+saved notes gone.
+
+For agent-led uninstall, say:
 
 ```text
-Open and follow this GitHub file:
-https://github.com/Habibi-7/living-brain/blob/main/UNINSTALL_FOR_AGENTS.md
+Uninstall HBrain with:
+npx hbrain uninstall
 ```
 
 ## Repository Map
@@ -269,8 +284,10 @@ See [`STRUCTURE.md`](./STRUCTURE.md) for the current file/folder map.
 Important files:
 
 - `skill/SKILL.md`: canonical product skill.
-- `install.sh`: public installer.
-- `uninstall.sh`: public uninstaller.
+- `bin/`: zero-dependency npm/npx installer command.
+- `package.json`: npm package metadata for `hbrain`.
+- `install.sh`: source checkout installer.
+- `uninstall.sh`: source checkout uninstaller.
 - `tool/`: optional Go helper CLI.
 - `docs/`: Mintlify documentation.
 - `platforms/`: notes on generated platform wrappers.

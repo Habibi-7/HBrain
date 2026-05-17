@@ -1,0 +1,35 @@
+{
+  "name": "hbrain",
+  "version": "0.1.0",
+  "description": "Agent-native second brain skill installer",
+  "license": "MIT",
+  "bin": {
+    "hbrain": "bin/living-brain.js"
+  },
+  "files": [
+    "bin/",
+    "skill/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node bin/living-brain.js --help"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Habibi-7/living-brain.git"
+  },
+  "keywords": [
+    "agent",
+    "skills",
+    "cursor",
+    "codex",
+    "claude",
+    "windsurf",
+    "second-brain",
+    "markdown"
+  ]
+}

@@ -205,7 +205,7 @@ event types, triggers, and workflows for a specific domain.
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, `brain — Living Second Brain CLI
+	fmt.Fprintf(os.Stderr, `brain — HBrain CLI
 
 Usage: brain <command> [args]
 

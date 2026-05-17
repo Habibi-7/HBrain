@@ -7,8 +7,10 @@ REMOVE_CURSOR=1
 REMOVE_CLAUDE=1
 REMOVE_WINDSURF=1
 REMOVE_CODEX=1
-MANAGED_BEGIN="<!-- BEGIN LIVING SECOND BRAIN -->"
-MANAGED_END="<!-- END LIVING SECOND BRAIN -->"
+MANAGED_BEGIN="<!-- BEGIN HBRAIN -->"
+MANAGED_END="<!-- END HBRAIN -->"
+LEGACY_MANAGED_BEGIN="<!-- BEGIN LIVING SECOND BRAIN -->"
+LEGACY_MANAGED_END="<!-- END LIVING SECOND BRAIN -->"
 
 info() { printf '  %s\n' "$*"; }
 ok() { printf '  OK %s\n' "$*"; }
@@ -67,7 +69,7 @@ done
 
 looks_owned() {
   path="$1"
-  [ -f "$path" ] && grep -q "Living Second Brain" "$path"
+  [ -f "$path" ] && (grep -q "HBrain" "$path" || grep -q "Living Second Brain" "$path")
 }
 
 remove_owned_file() {
@@ -81,7 +83,7 @@ remove_owned_file() {
     rm -f "$path"
     ok "removed $label: $path"
   else
-    warn "kept $label because it does not look like a Living Second Brain file: $path"
+    warn "kept $label because it does not look like an HBrain file: $path"
   fi
 }
 
@@ -101,11 +103,17 @@ remove_managed_block() {
     info "$label not found: $path"
     return
   fi
-  if ! grep -q "$MANAGED_BEGIN" "$path"; then
-    info "$label has no Living Second Brain block: $path"
+  if grep -q "$MANAGED_BEGIN" "$path"; then
+    begin="$MANAGED_BEGIN"
+    end="$MANAGED_END"
+  elif grep -q "$LEGACY_MANAGED_BEGIN" "$path"; then
+    begin="$LEGACY_MANAGED_BEGIN"
+    end="$LEGACY_MANAGED_END"
+  else
+    info "$label has no HBrain block: $path"
     return
   fi
-  awk -v begin="$MANAGED_BEGIN" -v end="$MANAGED_END" '
+  awk -v begin="$begin" -v end="$end" '
     $0 == begin { skip = 1; changed = 1; next }
     $0 == end { skip = 0; next }
     !skip { print }
@@ -160,7 +168,7 @@ purge_vault() {
 }
 
 echo ""
-echo "brain - Living Second Brain uninstaller"
+echo "HBrain uninstaller"
 echo "---------------------------------------"
 
 if [ "$REMOVE_CURSOR" -eq 1 ]; then

@@ -1,5 +1,5 @@
 ---
-name: brain
+name: hbrain
 description: |
   Capture and retrieve personal notes, tasks, decisions, facts, and saved
   links as markdown files the user owns. Use LLM judgment to notice durable
@@ -7,6 +7,8 @@ description: |
   visual views as self-contained HTML artifacts when the user asks for a view.
 triggers:
   # These are discovery hints, not hard gates. Use judgment even when none match.
+  - hbrain
+  - /hbrain
   - brain
   - /brain
   - memory
@@ -18,7 +20,7 @@ triggers:
   - dashboard
 ---
 
-# brain — Living Second Brain
+# HBrain
 
 You are the user's second brain. You notice durable signals in conversation,
 capture them as plain markdown files, retrieve them later, and render rich views

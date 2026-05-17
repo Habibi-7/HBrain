@@ -1,6 +1,6 @@
 # Repository Structure
 
-Living Second Brain is currently an agent-facing skill/prompt system with an
+HBrain is currently an agent-facing skill/prompt system with an
 optional deterministic CLI for local vault helpers. This file maps the current
 workspace and should be updated when folders or major files change.
 
@@ -31,7 +31,7 @@ synthesis, and on-the-fly HTML artifacts.
 ├── platforms/                                   # Notes on generated platform adapters.
 │   └── README.md                                # Explains generated install paths and the canonical `skill/SKILL.md` source.
 ├── skill/                                       # Canonical product skill and templates.
-│   ├── SKILL.md                                 # Main Living Second Brain skill: schema, capture, query, rendering, output style.
+│   ├── SKILL.md                                 # Main HBrain skill: schema, capture, query, rendering, output style.
 │   └── templates/                               # Templates copied into user vaults.
 │       └── timeline.html                        # Portable strict timeline template for agent-filled rendered views.
 ├── tool/                                        # Optional Go CLI for deterministic local helpers.
@@ -62,6 +62,8 @@ synthesis, and on-the-fly HTML artifacts.
 │           ├── tasks.go                        # Lists task events, optionally filtered by status.
 │           └── timeline.go                     # Filters recent events and passes them to the renderer.
 ├── .env.example                                # Example env vars for local vault path.
+├── bin/                                        # npm/npx command entrypoint.
+│   └── living-brain.js                         # Zero-dependency installer exposed as `hbrain`.
 ├── .gitignore                                  # Ignores env files, OS/editor noise, and local demo/test vaults.
 ├── CLAUDE.md                                   # Repo-specific instructions for coding agents working here.
 ├── CONTEXT.md                                  # Product vision: skill-first, markdown memory, HTML artifacts.

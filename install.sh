@@ -8,8 +8,8 @@ REPO_RAW="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/$REPO_REF"
 REPO_API="/repos/$REPO_OWNER/$REPO_NAME/contents"
 SKILL_INSTALLED=0
 INSTALL_CLI=1
-MANAGED_BEGIN="<!-- BEGIN LIVING SECOND BRAIN -->"
-MANAGED_END="<!-- END LIVING SECOND BRAIN -->"
+MANAGED_BEGIN="<!-- BEGIN HBRAIN -->"
+MANAGED_END="<!-- END HBRAIN -->"
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -63,7 +63,7 @@ write_platform_skill() {
     cursor)
       {
         printf '%s\n' '---'
-        printf '%s\n' 'description: Living Second Brain — semantic memory, retrieval, and HTML artifacts'
+        printf '%s\n' 'description: HBrain — semantic memory, retrieval, and HTML artifacts'
         printf '%s\n' 'alwaysApply: true'
         printf '%s\n\n' '---'
         strip_skill_frontmatter "$skill_tmp" | sed "s/agent: <agent-name>/agent: $agent_name/g"
@@ -72,7 +72,7 @@ write_platform_skill() {
     windsurf)
       {
         printf '%s\n' '---'
-        printf '%s\n' 'description: Living Second Brain — semantic memory, retrieval, and HTML artifacts'
+        printf '%s\n' 'description: HBrain — semantic memory, retrieval, and HTML artifacts'
         printf '%s\n' 'alwaysApply: true'
         printf '%s\n\n' '---'
         strip_skill_frontmatter "$skill_tmp" | sed "s/agent: <agent-name>/agent: $agent_name/g"
@@ -163,7 +163,7 @@ install_brain_cli() {
 # ── auto-detect ───────────────────────────────────────────────────────────────
 
 echo ""
-echo "brain — Living Second Brain installer"
+echo "HBrain installer"
 echo "──────────────────────────────────────"
 
 # Check for explicit --platform flag

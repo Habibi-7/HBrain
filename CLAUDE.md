@@ -1,6 +1,6 @@
 # CLAUDE.md — instructions for agents working on this repo
 
-This repo contains **Living Second Brain** — a skill + CLI tool that captures and retrieves a markdown-backed knowledge and task system.
+This repo contains **HBrain** — a skill + CLI tool that captures and retrieves a markdown-backed knowledge and task system.
 
 ## Repo structure
 
