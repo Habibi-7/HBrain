@@ -1,15 +1,46 @@
-# brain — Living Second Brain
+# Living Second Brain
 
-A skill that teaches your agent to notice durable thoughts, tasks, decisions,
-facts, and links in natural conversation, save them as plain markdown files you
-own, and render useful views when you ask.
+Living Second Brain is a skill for computer agents. It teaches Cursor, Claude
+Code/Cowork, Windsurf, Copilot, and similar agents to notice durable thoughts in
+natural conversation, save them as plain markdown files you own, and render
+useful HTML views when you ask.
 
-## Install
+The core idea:
 
-**For agents setting this up for a non-technical user:** read
-[`INSTALL_FOR_AGENTS.md`](./INSTALL_FOR_AGENTS.md). It walks the agent through
-installing the skill, optionally installing the CLI helper, choosing or creating
-the vault, and verifying everything works.
+```text
+Markdown memory + LLM judgment + HTML artifacts
+```
+
+No database is required. No server is required. The optional `brain` CLI is only
+a helper for mechanical work like counts, task lists, and default timelines.
+
+## What It Feels Like
+
+After setup, talk normally:
+
+```text
+"I think Tailwind is the right call because we're moving faster"
+  -> captures a decision
+
+"I need to review the auth PR before Friday"
+  -> captures an open task
+
+"What did I decide about the database?"
+  -> answers from your markdown vault
+
+"Show my week"
+  -> creates an HTML timeline artifact
+
+"Show my project progress as a graph"
+  -> creates an HTML visual artifact
+```
+
+The agent should not need magic phrases like "remember this." Those are only
+examples. The skill teaches semantic judgment: capture plans, decisions, tasks,
+preferences, facts, links, project updates, and recurring thoughts when they are
+likely to matter later.
+
+## Quick Start For Non-Technical Users
 
 Paste this into your agent:
 
@@ -18,45 +49,195 @@ Retrieve and follow the instructions at:
 https://raw.githubusercontent.com/Habibi-7/living-brain/main/INSTALL_FOR_AGENTS.md
 ```
 
-One line. Auto-detects your agent platform, installs the skill, and installs the
-optional `brain` helper CLI when Go is available.
+The agent will ask where to keep your vault, install the right skill/rule for
+your platform, optionally install the helper CLI, and verify the setup.
 
-**Private repo (gh already authed):**
-```bash
-gh api -H "Accept: application/vnd.github.v3.raw" /repos/Habibi-7/living-brain/contents/install.sh | sh
+Default vault:
+
+```text
+~/brain
 ```
 
-**Public repo:**
+## Install Yourself
+
+The public installer auto-detects supported agent platforms and installs the
+skill in the right place:
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh
 ```
 
-The installer detects `~/.claude`, `.cursor/`, `.windsurf/`, `.github/` and puts
-the skill in the right place. Platform wrappers are generated from
-`skill/SKILL.md`, so the prompt logic has one source of truth.
+Install for a specific platform:
 
-**Force a specific platform:**
 ```bash
-... | sh -s -- --cursor    # Cursor
-... | sh -s -- --claude    # Claude Code / Cowork
-... | sh -s -- --windsurf  # Windsurf
-... | sh -s -- --copilot   # GitHub Copilot
-... | sh -s -- --cursor --no-cli  # skill/rule only, skip optional CLI
+curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --cursor
+curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --claude
+curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --windsurf
+curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --copilot
 ```
+
+Install only the agent skill/rule and skip the optional CLI:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --cursor --no-cli
+```
+
+Platform install paths:
+
+| Platform | Install path |
+| --- | --- |
+| Claude Code / Cowork | `~/.claude/skills/brain.md` |
+| Cursor | `.cursor/rules/brain.mdc` |
+| Windsurf | `.windsurf/rules/brain.md` |
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Any agent | Load or paste `skill/SKILL.md` |
+
+Platform wrappers are generated from `skill/SKILL.md`, so the skill has one
+source of truth.
+
+## How It Works
+
+```text
+You speak naturally
+  -> Agent decides whether the thought has future value
+  -> Agent writes one markdown event file into your vault
+  -> Agent answers simple questions directly from the vault
+  -> Agent creates HTML artifacts for visual views
+```
+
+The canonical skill teaches:
+
+- **Schema**: five event types, four task statuses, and frontmatter rules.
+- **Semantic capture**: use judgment instead of exact trigger phrases.
+- **Retrieval**: read, filter, and aggregate plain markdown files.
+- **HTML artifacts**: generate self-contained visual views for timelines,
+  dashboards, heatmaps, graphs, boards, and reviews.
+- **Optional helpers**: use deterministic scripts/CLI when they are present,
+  but never depend on them for core behavior.
+
+## Vault Structure
+
+Your brain is a normal folder:
+
+```text
+~/brain/
+├── events/
+│   └── YYYY/MM/DD/
+│       └── <ulid>-<slug>.md
+├── renders/
+├── skills/
+│   └── <custom-skill>/
+│       ├── SKILL.md
+│       └── vault/events/
+└── .brain/
+    └── templates/
+        └── timeline.html
+```
+
+Each event is plain markdown:
+
+```markdown
+---
+id: 01JVMY7QXR8KF3DNQJ5CGPXG9S
+schema: 1
+type: decision
+created_at: 2026-05-04T14:32:11Z
+source: agent
+agent: cursor
+tags: [backend, database]
+links: []
+---
+
+Chose Postgres over Mongo because of native JSON support and ACID guarantees.
+```
+
+Supported event types:
+
+| Type | Use when |
+| --- | --- |
+| `note` | Freeform thought, observation, idea. |
+| `task` | Something to do. |
+| `decision` | A choice plus the reasoning. |
+| `fact` | External reference, quote, spec, number, attribution. |
+| `link` | URL plus optional commentary. |
+
+Task statuses:
+
+```text
+open | done | blocked | cancelled
+```
+
+## HTML Artifacts
+
+Markdown is the source of truth. HTML is the view layer.
+
+Agents should use plain text for simple lookup questions:
+
+```text
+"Did I decide to use Postgres?"
+"How many open tasks do I have?"
+"What was that link?"
+```
+
+Agents should generate self-contained HTML for visual requests:
+
+```text
+"Show my week"
+"Make a heatmap of my work on this project"
+"Show my open tasks as a board"
+"Graph my progress on marathon training"
+```
+
+Artifact rules:
+
+- Inline CSS and SVG when needed.
+- No external network dependencies.
+- Include date range, filters, event count, and generation time.
+- Do not invent events, counts, dates, or links.
+- Do not mutate the vault from generated HTML.
+- Save to `~/brain/renders/` only when the user asks to save or share.
+
+## Optional `brain` CLI
+
+The CLI is not the product. It is a small deterministic helper the agent may use
+when installed.
+
+```bash
+brain stats          # counts, types, top tags
+brain tasks          # open tasks
+brain tasks all      # every task by status
+brain search postgres
+brain stale 14       # open/blocked tasks older than 14 days
+brain timeline       # default HTML timeline
+brain timeline 30    # last 30 days
+```
+
+If the CLI is missing, the agent should read and write the markdown vault
+directly.
+
+## Custom Skills
+
+You can create a separate workflow for meetings, research, bug logs, reading
+notes, project journals, or anything else:
+
+```bash
+brain skill create "Meeting Notes" "Track meetings and action items"
+brain skill create "Research Tracker" "Papers, citations, and reading notes"
+brain skill list
+brain skill show meeting-notes
+```
+
+A custom skill gets its own `SKILL.md` and isolated event vault. Customize:
+
+- Event types.
+- Discovery hints.
+- Capture judgment.
+- Output style.
+- Domain-specific view rules.
 
 ## Uninstall
 
-**For agents removing this for a non-technical user:** read
-[`UNINSTALL_FOR_AGENTS.md`](./UNINSTALL_FOR_AGENTS.md).
-
-Paste this into your agent:
-
-```text
-Retrieve and follow the instructions at:
-https://raw.githubusercontent.com/Habibi-7/living-brain/main/UNINSTALL_FOR_AGENTS.md
-```
-
-Remove the skill/rules and `brain` CLI, keeping your saved notes vault:
+Remove the skill/rules and optional CLI, keeping your saved notes vault:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/uninstall.sh | sh
@@ -69,133 +250,27 @@ brain data gone:
 curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/uninstall.sh | sh -s -- --purge-vault --yes
 ```
 
-## First use
+For agent-led uninstall, paste:
 
-After install, just talk to your agent. First time it will ask where to keep your vault (default: `~/brain`). Then:
-
-```
-"I think Tailwind is the right call because we're moving faster"  →  ✓ decision saved
-"I need to review the auth PR before Friday"                      →  ✓ task · open
-"what did I decide about the database?"                           →  decision · May 4 · Chose Postgres...
-"show my week"                                                    →  HTML timeline artifact
-"show my project progress as a graph"                             →  HTML visual artifact
+```text
+Retrieve and follow the instructions at:
+https://raw.githubusercontent.com/Habibi-7/living-brain/main/UNINSTALL_FOR_AGENTS.md
 ```
 
-## brain CLI
+## Repository Map
 
-The CLI is optional helper code for deterministic mechanical work. Agents can
-use it when present, or read the markdown vault directly when it is not.
+See [`STRUCTURE.md`](./STRUCTURE.md) for the current file/folder map.
 
-```bash
-brain stats                # vault overview: counts, types, top tags
-brain tasks                # open tasks (default)
-brain tasks all            # all tasks by status
-brain search postgres      # full-text + tag search
-brain stale 14             # open/blocked tasks older than 14 days
-brain timeline             # open HTML timeline in browser (default: 7 days)
-brain timeline 30          # last 30 days
-```
+Important files:
 
-Set `BRAIN_DIR` if your vault is not at `~/brain`:
-```bash
-export BRAIN_DIR=~/Dropbox/brain
-```
+- `skill/SKILL.md`: canonical product skill.
+- `install.sh`: public installer.
+- `uninstall.sh`: public uninstaller.
+- `tool/`: optional Go helper CLI.
+- `docs/`: Mintlify documentation.
+- `platforms/`: notes on generated platform wrappers.
+- `CONTEXT.md`: product principles.
 
-## Custom skills
+## License
 
-Don't want a second brain? Build your own workflow. Each skill is a directory
-with a `SKILL.md` that defines its own event types, discovery hints, and capture
-judgment.
-
-```bash
-brain skill create "Meeting Notes" "Track meetings and action items"
-brain skill create "Research Tracker" "Papers, citations, and reading notes"
-brain skill list
-brain skill show meeting-notes
-```
-
-Skills live at `~/brain/skills/`. Each one gets:
-- A `SKILL.md` — load this into your agent to activate the skill
-- A `vault/events/` directory — isolated event storage for that skill
-
-After creating, open the `SKILL.md` and customize:
-- **Event types** — replace the defaults with types that fit your domain
-- **Discovery hints** — phrases that help an agent find the skill
-- **Capture judgment** — domain-specific instructions for what is worth saving
-
-```bash
-# See where the skill file is, then open it in your editor
-brain skill path meeting-notes
-```
-
-Load the skill into your agent the same way you load the default brain skill — just point to that SKILL.md instead.
-
-## How it works
-
-```
-You speak naturally
-  → Agent uses judgment to capture durable signals as markdown
-  → Agent answers simple questions directly from the vault
-  → Agent renders HTML artifacts for visual timelines, dashboards, heatmaps, and graphs
-```
-
-The default skill teaches your agent:
-- **Schema** — 5 event types: `note` `task` `decision` `fact` `link`
-- **Capture** — use semantic judgment, one durable thought per file, preserve your phrasing
-- **Query** — find, filter, aggregate using file tools
-- **Views** — generate self-contained HTML artifacts, using templates as defaults
-- **Helpers** — optionally use `brain` CLI for stable parsing, counts, validation, and default views
-
-Or create a custom skill for any domain — meeting notes, research tracking, project logs, anything.
-
-## Vault structure
-
-```
-~/brain/
-├── events/
-│   └── YYYY/MM/DD/
-│       └── <ulid>-<slug>.md    # one file per thought
-├── renders/
-├── skills/
-│   ├── meeting-notes/
-│   │   ├── SKILL.md            # custom skill definition
-│   │   └── vault/events/       # isolated event storage
-│   └── research-tracker/
-│       ├── SKILL.md
-│       └── vault/events/
-└── .brain/
-    └── templates/
-        └── timeline.html
-```
-
-Each event:
-```markdown
----
-id: 01JVMY7QXR8KF3DNQJ5CGPXG9S
-schema: 1
-type: decision
-created_at: 2026-05-04T14:32:11Z
-source: agent
-agent: cursor
-tags: [backend, database]
----
-
-Chose Postgres over Mongo — native JSON support and ACID guarantees.
-```
-
-## Platform support
-
-| Platform | Install path |
-|----------|-------------|
-| Claude Code / Cowork | `~/.claude/skills/brain.md` |
-| Cursor | `.cursor/rules/brain.mdc` |
-| Windsurf | `.windsurf/rules/brain.md` |
-| GitHub Copilot | `.github/copilot-instructions.md` |
-| Any agent | `skill/SKILL.md` → paste or load into system prompt |
-
-See [`platforms/`](./platforms/) for how platform wrappers are generated from
-the canonical skill.
-
-## Vision
-
-See [CONTEXT.md](./CONTEXT.md).
+MIT
