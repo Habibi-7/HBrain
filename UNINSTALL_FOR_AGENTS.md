@@ -12,8 +12,7 @@ they explicitly ask you to delete their saved notes too.
   - Cursor: `.cursor/rules/brain.mdc`
   - Claude Code / Cowork: `~/.claude/skills/brain.md`
   - Windsurf: `.windsurf/rules/brain.md`
-  - GitHub Copilot: `.github/copilot-instructions.md` when it is the Living
-    Second Brain file.
+  - OpenAI Codex: the managed Living Second Brain block in `AGENTS.md`.
 - Optional user data vault:
   - `$BRAIN_DIR` if set.
   - Otherwise `~/brain`.
@@ -75,8 +74,8 @@ the user explicitly confirmed that saved notes should be deleted.
 ## 3. Platform-Specific Cleanup
 
 The uninstaller removes platform instruction files from the current directory.
-For Cursor, Windsurf, and Copilot, run it from each workspace where Living
-Second Brain was installed.
+For Cursor, Windsurf, and Codex, run it from each workspace where Living Second
+Brain was installed.
 
 You can target one platform:
 
@@ -84,7 +83,7 @@ You can target one platform:
 sh uninstall.sh --cursor
 sh uninstall.sh --claude
 sh uninstall.sh --windsurf
-sh uninstall.sh --copilot
+sh uninstall.sh --codex
 ```
 
 ## 4. Verify

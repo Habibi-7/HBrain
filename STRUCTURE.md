@@ -7,9 +7,9 @@ workspace and should be updated when folders or major files change.
 ## Current LLM Usage
 
 The repo does not call an LLM API directly from the Go CLI or shell scripts.
-The LLM is the host agent: Cursor, Claude Code, Cowork, Windsurf, Copilot, or
-another agent reads `skill/SKILL.md` and uses its own reasoning plus file tools
-to capture, query, and render the brain.
+The LLM is the host agent: Cursor, Claude Code, Cowork, OpenAI Codex, Windsurf,
+or another agent reads `skill/SKILL.md` and uses its own reasoning plus file
+tools to capture, query, and render the brain.
 
 Deterministic code stays at the edges: install/uninstall, validation, parsing,
 counts, and default views. LLM judgment stays in the skill: semantic capture,

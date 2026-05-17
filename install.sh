@@ -8,6 +8,8 @@ REPO_RAW="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/$REPO_REF"
 REPO_API="/repos/$REPO_OWNER/$REPO_NAME/contents"
 SKILL_INSTALLED=0
 INSTALL_CLI=1
+MANAGED_BEGIN="<!-- BEGIN LIVING SECOND BRAIN -->"
+MANAGED_END="<!-- END LIVING SECOND BRAIN -->"
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -76,17 +78,40 @@ write_platform_skill() {
         strip_skill_frontmatter "$skill_tmp" | sed "s/agent: <agent-name>/agent: $agent_name/g"
       } > "$output_path"
       ;;
-    copilot)
-      {
-        printf '%s\n' '<!-- Installed by Living Second Brain. Source: skill/SKILL.md -->'
-        strip_skill_frontmatter "$skill_tmp" | sed "s/agent: <agent-name>/agent: $agent_name/g"
-      } > "$output_path"
-      ;;
     *)
       die "unknown platform generator: $platform_name"
       ;;
   esac
 
+  rm -f "$skill_tmp"
+}
+
+remove_managed_block() {
+  managed_path="$1"
+  [ -f "$managed_path" ] || return 0
+  awk -v begin="$MANAGED_BEGIN" -v end="$MANAGED_END" '
+    $0 == begin { skip = 1; next }
+    $0 == end { skip = 0; next }
+    !skip { print }
+  ' "$managed_path" > "$managed_path.tmp"
+  mv "$managed_path.tmp" "$managed_path"
+}
+
+append_managed_skill() {
+  managed_path="$1"; agent_name="$2"
+  skill_tmp="${TMPDIR:-/tmp}/brain-skill-$$.md"
+  fetch "skill/SKILL.md" "$skill_tmp"
+  mkdir -p "$(dirname "$managed_path")"
+  touch "$managed_path"
+  remove_managed_block "$managed_path"
+  {
+    [ -s "$managed_path" ] && printf '\n'
+    printf '%s\n' "$MANAGED_BEGIN"
+    printf '%s\n' ''
+    strip_skill_frontmatter "$skill_tmp" | sed "s/agent: <agent-name>/agent: $agent_name/g"
+    printf '%s\n' ''
+    printf '%s\n' "$MANAGED_END"
+  } >> "$managed_path"
   rm -f "$skill_tmp"
 }
 
@@ -113,10 +138,10 @@ install_windsurf() {
   SKILL_INSTALLED=1
 }
 
-install_copilot() {
-  dest="${1:-.}/.github/copilot-instructions.md"
-  write_platform_skill copilot copilot "$dest"
-  ok "Copilot      →  $dest"
+install_codex() {
+  dest="${1:-.}/AGENTS.md"
+  append_managed_skill "$dest" codex
+  ok "OpenAI Codex →  $dest"
   SKILL_INSTALLED=1
 }
 
@@ -147,7 +172,7 @@ for arg in "$@"; do
   case "$arg" in
     --cursor)    PLATFORM=cursor ;;
     --windsurf)  PLATFORM=windsurf ;;
-    --copilot)   PLATFORM=copilot ;;
+    --codex)     PLATFORM=codex ;;
     --claude)    PLATFORM=claude ;;
     --no-cli|--skill-only) INSTALL_CLI=0 ;;
   esac
@@ -158,7 +183,7 @@ if [ -n "$PLATFORM" ]; then
   case "$PLATFORM" in
     cursor)   install_cursor ;;
     windsurf) install_windsurf ;;
-    copilot)  install_copilot ;;
+    codex)    install_codex ;;
     claude)   install_claude_code ;;
   esac
 else
@@ -168,9 +193,7 @@ else
   [ -d "$HOME/.claude" ]         && install_claude_code
   [ -d ".cursor" ]               && install_cursor .
   [ -d ".windsurf" ]             && install_windsurf .
-  [ -d ".github" ] && grep -q "copilot" ".github/copilot-instructions.md" 2>/dev/null \
-                               || [ -f ".github/copilot-instructions.md" ] \
-                               && install_copilot .
+  [ -f "AGENTS.md" ]             && install_codex .
 
   if [ "$SKILL_INSTALLED" -eq 0 ]; then
     warn "No agent platform detected in current directory or home."
@@ -178,7 +201,7 @@ else
     warn "  --claude    →  ~/.claude/skills/brain.md"
     warn "  --cursor    →  .cursor/rules/brain.mdc"
     warn "  --windsurf  →  .windsurf/rules/brain.mdc"
-    warn "  --copilot   →  .github/copilot-instructions.md"
+    warn "  --codex     →  AGENTS.md"
     warn "  --no-cli    →  install only the skill/rule, skip optional CLI"
   fi
 fi

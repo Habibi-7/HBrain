@@ -62,11 +62,11 @@ curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.
 # Claude Code / Cowork
 curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --claude
 
+# OpenAI Codex
+curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --codex
+
 # Windsurf
 curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --windsurf
-
-# GitHub Copilot
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --copilot
 ```
 
 The `brain` CLI is optional. To install only the agent skill/rule:
@@ -79,7 +79,7 @@ If you are already inside a local checkout of this repository, use the local
 installer so platform wrappers are generated from `skill/SKILL.md`:
 
 ```bash
-sh install.sh --cursor --no-cli    # or --claude, --windsurf, --copilot
+sh install.sh --cursor --no-cli    # or --claude, --codex, --windsurf
 ```
 
 The installer also installs the optional `brain` CLI when Go is available. If

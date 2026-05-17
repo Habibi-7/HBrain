@@ -1,9 +1,9 @@
 # Living Second Brain
 
 Living Second Brain is a skill for computer agents. It teaches Cursor, Claude
-Code/Cowork, Windsurf, Copilot, and similar agents to notice durable thoughts in
-natural conversation, save them as plain markdown files you own, and render
-useful HTML views when you ask.
+Code/Cowork, OpenAI Codex, Windsurf, and similar agents to notice durable
+thoughts in natural conversation, save them as plain markdown files you own, and
+render useful HTML views when you ask.
 
 The core idea:
 
@@ -72,8 +72,8 @@ Install for a specific platform:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --cursor
 curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --claude
+curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --codex
 curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --windsurf
-curl -fsSL https://raw.githubusercontent.com/Habibi-7/living-brain/main/install.sh | sh -s -- --copilot
 ```
 
 Install only the agent skill/rule and skip the optional CLI:
@@ -88,8 +88,8 @@ Platform install paths:
 | --- | --- |
 | Claude Code / Cowork | `~/.claude/skills/brain.md` |
 | Cursor | `.cursor/rules/brain.mdc` |
+| OpenAI Codex | `AGENTS.md` managed block |
 | Windsurf | `.windsurf/rules/brain.md` |
-| GitHub Copilot | `.github/copilot-instructions.md` |
 | Any agent | Load or paste `skill/SKILL.md` |
 
 Platform wrappers are generated from `skill/SKILL.md`, so the skill has one
