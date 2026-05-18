@@ -154,6 +154,17 @@ Chose Postgres over Mongo because of native JSON support and ACID guarantees.
 6. **Use semantic judgment.** Trigger phrases are examples, not limits.
 7. **Capture silently when in doubt.** Lost thought > stray event.
 
+### Reminder boundary
+
+Tasks are stored in the vault. Do not imply that you will notify, remind, or
+schedule something unless a real reminder/calendar/task tool succeeds.
+
+- Good: `✓ task saved · open · due Tuesday`
+- Bad: `I'll remind you Tuesday`
+
+If an external reminder tool fails, still save the task in HBrain and say the
+external reminder was not created.
+
 ---
 
 ## 3. Querying events
@@ -253,6 +264,52 @@ Rules:
    to save or share the view.
 7. If the user says they dislike a view, redesign it while preserving the
    source data and these rules.
+
+### HBrain artifact style guide
+
+Use this style for every HBrain HTML artifact unless the user explicitly asks
+for a different style. This is intentionally strict so the user can tell whether
+you are following HBrain.
+
+Identity:
+
+- Every artifact title starts with `HBrain ·`.
+- The visible header includes the view name, date range, event count, filters,
+  and generated time.
+- The footer says `HBrain` and names the vault or source path when known.
+
+Color:
+
+- Use only black, white, and red.
+- Allowed colors: `#000000`, `#ffffff`, `#f5f5f5`, `#e5e5e5`, `#999999`,
+  `#666666`, `#cc0000`, `#ff0000`.
+- Do not use blue, green, purple, orange, gradients, or pastel status colors.
+- Use red for emphasis, active states, selected dates, task markers, and alerts.
+
+Shape and layout:
+
+- No rounded corners. `border-radius: 0` everywhere.
+- No shadows, glassmorphism, blurred panels, emoji decoration, or decorative
+  gradients.
+- Prefer strong grid alignment, thin black/gray borders, generous whitespace,
+  and plain typography.
+- Use semantic HTML: `header`, `main`, `section`, `article`, `footer`, `time`.
+- Keep layouts responsive without external CSS frameworks.
+
+Interaction honesty:
+
+- Do not claim hover, filtering, sorting, clicking, or animation unless the HTML
+  actually implements it with inline JavaScript.
+- If the artifact is static, describe it as static.
+
+Event display:
+
+- Use consistent labels for event types: `note`, `task`, `decision`, `fact`,
+  `link`.
+- Preserve source text. Do not summarize event bodies unless the view explicitly
+  asks for a digest or synthesis.
+- For tasks, show status and due date if known. Do not promise reminders unless
+  a real reminder tool exists and succeeded.
 
 ### Template flow
 

@@ -215,6 +215,15 @@ Artifact rules:
 - Do not mutate the vault from generated HTML.
 - Save to `~/brain/renders/` only when the user asks to save or share.
 
+Default HBrain visual style:
+
+- Every artifact title starts with `HBrain ·`.
+- Use only black, white, gray, and red.
+- No rounded corners, shadows, gradients, glassmorphism, or decorative emoji.
+- Use semantic HTML and strong grid alignment.
+- Do not claim interactivity unless the HTML actually implements it.
+- Show provenance in the header: date range, filters, event count, generated time.
+
 ## Optional `brain` CLI
 
 The CLI is not the product. It is a small deterministic helper the agent may use
