@@ -34,6 +34,9 @@ func main() {
 	case "skill":
 		runSkill(os.Args[2:])
 		return
+	case "doctor", "where":
+		runDoctor()
+		return
 	}
 
 	v, err := vault.Discover()
@@ -91,6 +94,44 @@ func main() {
 		usage()
 		os.Exit(1)
 	}
+}
+
+func runDoctor() {
+	home, _ := os.UserHomeDir()
+	brainDir := os.Getenv("BRAIN_DIR")
+	resolved := brainDir
+	if resolved == "" {
+		resolved = filepath.Join(home, "brain")
+	}
+
+	fmt.Printf("HOME:        %s\n", home)
+	fmt.Printf("BRAIN_DIR:   %s\n", brainDir)
+	fmt.Printf("Vault path:  %s\n", resolved)
+
+	homeEphemeral, homeReason := vault.IsEphemeralHome()
+	vaultEphemeral, vaultReason := vault.IsEphemeralPath(resolved)
+
+	if homeEphemeral {
+		fmt.Printf("\n⚠  Ephemeral $HOME detected: %s\n", homeReason)
+	}
+	if vaultEphemeral {
+		fmt.Printf("⚠  Vault path is ephemeral: %s\n", vaultReason)
+		fmt.Println("   Events written here will be lost when the session ends.")
+		fmt.Println("   Mount a folder from your real machine and set BRAIN_DIR to it.")
+	}
+
+	v, err := vault.Discover()
+	if err != nil {
+		fmt.Printf("\nVault status: not initialized (%v)\n", err)
+		return
+	}
+
+	events, err := v.AllEvents()
+	if err != nil {
+		fmt.Printf("\nVault status: error reading events: %v\n", err)
+		return
+	}
+	fmt.Printf("\nVault status: ok · %d events\n", len(events))
 }
 
 func runSkill(args []string) {
@@ -216,6 +257,7 @@ Commands:
   stale [days]         Find stale open/blocked tasks (default: 14 days)
   stats                Vault overview: counts, types, top tags
   skill <sub>          Manage skills (create, list, show)
+  doctor               Show vault path + warn if ephemeral (alias: where)
   version              Print version
 
 Environment:

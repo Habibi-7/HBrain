@@ -55,23 +55,61 @@ the user.
 
 ## 1. Vault setup
 
-The vault is a folder of markdown files the user owns.
+The vault is a folder of markdown files the user owns. It MUST live on
+persistent storage — the user's real machine — not inside an ephemeral
+sandbox or VM home.
 
-**Finding the vault:**
-1. If `$BRAIN_DIR` is set, use it.
-2. Otherwise, ask the user once: "Where should I keep your brain vault?"
-3. Default suggestion: `~/brain`.
-4. **Remember the path** so you never ask again.
+### 1a. Sandbox check (run first, every session)
 
-**Creating a new vault** (first time only):
+Before capturing anything, verify the vault path is persistent. If you are
+running inside a sandboxed agent (Cowork, computer-use VM, hosted notebook,
+Docker container), `$HOME` is wiped when the session ends. Events written
+there will be lost.
+
+Heuristics that signal an ephemeral environment:
+
+- `$HOME` starts with `/sessions/` (Cowork session containers).
+- `/.dockerenv` or `/run/.containerenv` exists.
+- `hostname` is `claude`, a random hex string, or a generic container name.
+
+If any of these match, do NOT capture into `$HOME/brain` or any path inside
+the sandbox. Instead:
+
+1. Tell the user the environment is ephemeral and the vault would be lost.
+2. Ask them to connect / mount a folder from their real machine (e.g.,
+   `~/brain` on their Mac) into the sandbox.
+3. Ask for the mount path inside the sandbox (Cowork typically reports it
+   when a folder is granted).
+4. Set `BRAIN_DIR` to the mount path for this session.
+5. Confirm with `brain doctor` (or by listing the dir) that the path is
+   present and writable.
+
+If the `brain` CLI is installed, run `brain doctor` at session start. It
+prints `HOME`, `BRAIN_DIR`, the resolved vault path, and warns if the path
+looks ephemeral.
+
+The only safe local environments are: the user's own laptop/desktop (Cursor,
+Claude Code, Codex CLI, Windsurf), or a sandbox with an explicitly mounted
+persistent folder.
+
+### 1b. Finding the vault
+
+1. If `$BRAIN_DIR` is set AND points to a persistent path, use it.
+2. Otherwise, if running on a local agent (no sandbox markers), ask the user
+   once: "Where should I keep your brain vault?" Default suggestion: `~/brain`.
+3. Otherwise (sandbox detected, no `BRAIN_DIR`), refuse to capture and follow
+   section 1a.
+4. **Remember the path** for the rest of the session.
+
+### 1c. Creating a new vault (first time only)
 
 ```bash
-mkdir -p ~/brain/events ~/brain/renders ~/brain/.brain/templates
+mkdir -p "$BRAIN_DIR/events" "$BRAIN_DIR/renders" "$BRAIN_DIR/.brain/templates"
 ```
 
 Copy the templates from this skill's `templates/` directory into
-`~/brain/.brain/templates/` if they don't already exist. Templates are defaults,
-not cages.
+`$BRAIN_DIR/.brain/templates/` if they don't already exist. Templates are
+defaults, not cages.
 
 ---
 
@@ -146,13 +184,16 @@ Chose Postgres over Mongo because of native JSON support and ACID guarantees.
 
 ### Capture rules
 
-1. **Use the user's phrasing.** Don't paraphrase or correct.
-2. **One thought per file.** Three thoughts = three files.
-3. **If unsure about type, use `note`.**
-4. **Tell the user briefly.** "Captured decision · `01JVM...`"
-5. **Never invent types or statuses.** Only the values listed above.
-6. **Use semantic judgment.** Trigger phrases are examples, not limits.
-7. **Capture silently when in doubt.** Lost thought > stray event.
+1. **Confirm vault is persistent.** Before the first capture of a session,
+   run the sandbox check from section 1a. Refuse to capture into an
+   ephemeral path.
+2. **Use the user's phrasing.** Don't paraphrase or correct.
+3. **One thought per file.** Three thoughts = three files.
+4. **If unsure about type, use `note`.**
+5. **Tell the user briefly.** "Captured decision · `01JVM...`"
+6. **Never invent types or statuses.** Only the values listed above.
+7. **Use semantic judgment.** Trigger phrases are examples, not limits.
+8. **Capture silently when in doubt.** Lost thought > stray event.
 
 ### Reminder boundary
 
@@ -349,12 +390,16 @@ not the brain itself.
 Use it when present for stable mechanical operations:
 
 ```bash
+brain doctor        # vault path + ephemeral-environment warning
 brain stats
 brain tasks
 brain search postgres
 brain stale 14
 brain timeline 30
 ```
+
+Run `brain doctor` at the start of every new session before capturing
+anything — it confirms the vault path is persistent.
 
 Do not require it for core behavior. If the CLI is missing, read and write the
 markdown vault directly.

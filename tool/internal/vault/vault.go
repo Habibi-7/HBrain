@@ -42,6 +42,34 @@ func isVault(dir string) bool {
 	return err == nil && info.IsDir()
 }
 
+// IsEphemeralPath reports whether the given path lives in a known
+// short-lived sandbox (e.g. Cowork session container, generic Docker
+// container root). Vaults stored under such paths are wiped when the
+// session ends, so HBrain should refuse to capture into them.
+func IsEphemeralPath(path string) (bool, string) {
+	if strings.HasPrefix(path, "/sessions/") {
+		return true, "$HOME under /sessions/ — looks like a Cowork sandbox"
+	}
+	if _, err := os.Stat("/.dockerenv"); err == nil {
+		if strings.HasPrefix(path, "/root") || strings.HasPrefix(path, "/home/") {
+			return true, "/.dockerenv present — looks like a container filesystem"
+		}
+	}
+	if _, err := os.Stat("/run/.containerenv"); err == nil {
+		return true, "/run/.containerenv present — looks like a container filesystem"
+	}
+	return false, ""
+}
+
+// IsEphemeralHome reports whether $HOME itself is ephemeral.
+func IsEphemeralHome() (bool, string) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return false, ""
+	}
+	return IsEphemeralPath(home)
+}
+
 func expandHome(path string) string {
 	if strings.HasPrefix(path, "~/") {
 		home, err := os.UserHomeDir()
