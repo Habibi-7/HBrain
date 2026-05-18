@@ -108,8 +108,8 @@ source of truth.
 Source install is still available for contributors:
 
 ```bash
-git clone https://github.com/Habibi-7/living-brain.git
-cd living-brain
+git clone https://github.com/Habibi-7/hbrain.git
+cd hbrain
 sh install.sh --cursor --no-cli
 ```
 

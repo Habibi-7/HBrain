@@ -37,7 +37,7 @@ synthesis, and on-the-fly HTML artifacts.
 ├── tool/                                        # Optional Go CLI for deterministic local helpers.
 │   ├── .gitignore                              # Ignores local `brain` binary and `dist/` cross-compile output.
 │   ├── Makefile                                # Build, install, test, clean, and cross-compile commands.
-│   ├── go.mod                                  # Go module declaration for `github.com/Habibi-7/living-brain/tool`.
+│   ├── go.mod                                  # Go module declaration for `github.com/Habibi-7/hbrain/tool`.
 │   ├── cmd/                                    # CLI command entrypoint packages.
 │   │   └── brain/                              # Main `brain` binary package.
 │   │       └── main.go                         # Routes CLI commands, discovers vaults, and opens timeline HTML.

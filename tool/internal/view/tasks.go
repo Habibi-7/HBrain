@@ -5,8 +5,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/Habibi-7/living-brain/tool/internal/event"
-	"github.com/Habibi-7/living-brain/tool/internal/vault"
+	"github.com/Habibi-7/hbrain/tool/internal/event"
+	"github.com/Habibi-7/hbrain/tool/internal/vault"
 )
 
 func Tasks(w io.Writer, v *vault.Vault, status string) error {

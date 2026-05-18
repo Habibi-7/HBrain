@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Habibi-7/living-brain/tool/internal/skill"
-	"github.com/Habibi-7/living-brain/tool/internal/vault"
-	"github.com/Habibi-7/living-brain/tool/internal/view"
+	"github.com/Habibi-7/hbrain/tool/internal/skill"
+	"github.com/Habibi-7/hbrain/tool/internal/vault"
+	"github.com/Habibi-7/hbrain/tool/internal/view"
 )
 
 const version = "0.1.0"

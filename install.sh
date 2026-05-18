@@ -2,7 +2,7 @@
 set -e
 
 REPO_OWNER="Habibi-7"
-REPO_NAME="living-brain"
+REPO_NAME="hbrain"
 REPO_REF="main"
 REPO_RAW="https://raw.githubusercontent.com/$REPO_OWNER/$REPO_NAME/$REPO_REF"
 REPO_API="/repos/$REPO_OWNER/$REPO_NAME/contents"
@@ -151,12 +151,12 @@ install_brain_cli() {
   if ! command -v go >/dev/null 2>&1; then
     warn "Go not found — skipping brain CLI install"
     warn "Install Go from https://go.dev/dl/ then run:"
-    warn "  GOPRIVATE=github.com/Habibi-7/* go install github.com/Habibi-7/living-brain/tool/cmd/brain@main"
+    warn "  GOPRIVATE=github.com/Habibi-7/* go install github.com/Habibi-7/hbrain/tool/cmd/brain@main"
     return
   fi
   info "Installing brain CLI..."
   GOPRIVATE="github.com/Habibi-7/*" GONOSUMDB="github.com/Habibi-7/*" \
-    go install github.com/Habibi-7/living-brain/tool/cmd/brain@main
+    go install github.com/Habibi-7/hbrain/tool/cmd/brain@main
   ok "brain CLI    →  $(go env GOPATH)/bin/brain"
 }
 

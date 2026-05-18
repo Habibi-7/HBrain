@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/Habibi-7/living-brain/tool/internal/event"
+	"github.com/Habibi-7/hbrain/tool/internal/event"
 )
 
 //go:embed templates/*.html
