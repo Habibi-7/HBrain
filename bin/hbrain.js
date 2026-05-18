@@ -4,15 +4,24 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const https = require("https");
+const { spawnSync } = require("child_process");
 
 const PACKAGE_ROOT = path.resolve(__dirname, "..");
 const SKILL_PATH = path.join(PACKAGE_ROOT, "skill", "SKILL.md");
 const TEMPLATE_DIR = path.join(PACKAGE_ROOT, "skill", "templates");
 const MANAGED_BEGIN = "<!-- BEGIN HBRAIN -->";
 const MANAGED_END = "<!-- END HBRAIN -->";
+const REGISTRY_URL = "https://registry.npmjs.org/hbrain/latest";
+const REGISTRY_TIMEOUT_MS = 3000;
+const NETWORK_COMMANDS = new Set(["install", "uninstall", "status"]);
 
-function main() {
+async function main() {
   const [command = "help", ...args] = process.argv.slice(2);
+
+  if (NETWORK_COMMANDS.has(command)) {
+    await ensureLatest(command, args);
+  }
 
   switch (command) {
     case "install":
@@ -37,6 +46,59 @@ function main() {
     default:
       fail(`unknown command: ${command}\n\nRun: npx hbrain --help`);
   }
+}
+
+async function ensureLatest(command, args) {
+  if (process.env.HBRAIN_NO_SELF_UPDATE === "1") return;
+  if (process.env.HBRAIN_SELF_UPDATED === "1") return;
+
+  const pkg = JSON.parse(fs.readFileSync(path.join(PACKAGE_ROOT, "package.json"), "utf8"));
+  const current = pkg.version;
+
+  let latest;
+  try {
+    latest = await fetchLatestVersion();
+  } catch {
+    return;
+  }
+  if (!latest || latest === current) return;
+
+  info(`Updating hbrain ${current} → ${latest} (running latest from npm)...`);
+  const result = spawnSync("npx", ["-y", `hbrain@${latest}`, command, ...args], {
+    stdio: "inherit",
+    env: { ...process.env, HBRAIN_SELF_UPDATED: "1" },
+  });
+  process.exit(result.status ?? 0);
+}
+
+function fetchLatestVersion() {
+  return new Promise((resolve, reject) => {
+    const req = https.get(
+      REGISTRY_URL,
+      { timeout: REGISTRY_TIMEOUT_MS, headers: { "user-agent": "hbrain-installer" } },
+      (res) => {
+        if (res.statusCode !== 200) {
+          res.resume();
+          reject(new Error(`registry status ${res.statusCode}`));
+          return;
+        }
+        let body = "";
+        res.setEncoding("utf8");
+        res.on("data", (chunk) => (body += chunk));
+        res.on("end", () => {
+          try {
+            resolve(JSON.parse(body).version);
+          } catch (err) {
+            reject(err);
+          }
+        });
+      },
+    );
+    req.on("error", reject);
+    req.on("timeout", () => {
+      req.destroy(new Error("registry timeout"));
+    });
+  });
 }
 
 function parseArgs(args) {
@@ -424,7 +486,13 @@ Examples:
   npx hbrain install --cursor
   npx hbrain install --codex --vault ~/brain
   npx hbrain uninstall --codex
+
+Self-update:
+  install/uninstall/status auto-fetch the latest hbrain from npm.
+  Set HBRAIN_NO_SELF_UPDATE=1 to disable.
 `);
 }
 
-main();
+main().catch((err) => {
+  fail(err && err.message ? err.message : String(err));
+});
