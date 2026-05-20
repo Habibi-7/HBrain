@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/Habibi-7/hbrain/tool/internal/event"
@@ -10,10 +9,13 @@ import (
 	"github.com/Habibi-7/hbrain/tool/internal/vault"
 )
 
-func Timeline(w io.Writer, v *vault.Vault, days int) error {
+// Timeline gathers events from the vault and returns a typed ViewModel
+// ready for any format adapter (HTML, JSON, text). Format choice happens
+// in main.go.
+func Timeline(v *vault.Vault, days int) (render.TimelineVM, error) {
 	all, err := v.AllEvents()
 	if err != nil {
-		return err
+		return render.TimelineVM{}, err
 	}
 
 	cutoff := time.Now().UTC().AddDate(0, 0, -days)
@@ -31,6 +33,5 @@ func Timeline(w io.Writer, v *vault.Vault, days int) error {
 		label = "This week"
 	}
 
-	loader := render.DefaultLoader(v.TemplatesDir())
-	return render.Timeline(w, filtered, label, loader)
+	return render.BuildTimelineVM(filtered, label), nil
 }

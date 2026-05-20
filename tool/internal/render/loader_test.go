@@ -22,7 +22,7 @@ func TestFileLoaderReadsTemplate(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, TimelineData{RangeLabel: "This week"}); err != nil {
+	if err := tmpl.Execute(&buf, TimelineVM{RangeLabel: "This week"}); err != nil {
 		t.Fatal(err)
 	}
 	if got := buf.String(); !strings.Contains(got, "This week") {
@@ -44,7 +44,7 @@ func TestEmbedLoaderLoadsBundledTemplate(t *testing.T) {
 		t.Fatal(err)
 	}
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, TimelineData{RangeLabel: "Today", EventCount: 0}); err != nil {
+	if err := tmpl.Execute(&buf, TimelineVM{RangeLabel: "Today", EventCount: 0}); err != nil {
 		t.Fatal(err)
 	}
 	if got := buf.String(); !strings.Contains(got, "Today") {
@@ -85,7 +85,7 @@ func TestChainLoaderPrefersFile(t *testing.T) {
 		t.Fatal(err)
 	}
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, TimelineData{RangeLabel: "X"}); err != nil {
+	if err := tmpl.Execute(&buf, TimelineVM{RangeLabel: "X"}); err != nil {
 		t.Fatal(err)
 	}
 	if got := buf.String(); !strings.Contains(got, "<custom>X</custom>") {
