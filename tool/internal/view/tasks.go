@@ -54,11 +54,15 @@ func Tasks(w io.Writer, v *vault.Vault, status string) error {
 			marker = "✕"
 		}
 		date := t.CreatedAt.Format("Jan 2")
+		due := ""
+		if t.Due != nil {
+			due = "  due " + t.Due.Format("Jan 2")
+		}
 		tags := ""
 		if len(t.Tags) > 0 {
 			tags = "  #" + strings.Join(t.Tags, " #")
 		}
-		fmt.Fprintf(w, "  %s %s  %s%s\n", marker, t.Title(), date, tags)
+		fmt.Fprintf(w, "  %s %s  %s%s%s\n", marker, t.Title(), date, due, tags)
 	}
 
 	return nil
