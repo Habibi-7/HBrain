@@ -1,13 +1,14 @@
 package event
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"os"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/Habibi-7/hbrain/tool/internal/frontmatter"
 )
 
 type Type string
@@ -34,13 +35,14 @@ type Event struct {
 	Schema    int
 	Type      Type
 	CreatedAt time.Time
+	Due       *time.Time
 	Source    string
-	Agent    string
-	Tags     []string
-	Links    []string
-	Status   Status
-	Body     string
-	FilePath string
+	Agent     string
+	Tags      []string
+	Links     []string
+	Status    Status
+	Body      string
+	FilePath  string
 }
 
 func (e *Event) Title() string {
@@ -56,36 +58,47 @@ func (e *Event) Title() string {
 }
 
 func Parse(r io.Reader, filePath string) (*Event, error) {
-	scanner := bufio.NewScanner(r)
-
-	// Expect opening ---
-	if !scanner.Scan() || strings.TrimSpace(scanner.Text()) != "---" {
-		return nil, fmt.Errorf("missing frontmatter opening")
+	meta, body, err := frontmatter.Parse(r)
+	if err != nil {
+		return nil, err
 	}
 
-	// Read frontmatter lines until closing ---
-	var fmLines []string
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.TrimSpace(line) == "---" {
-			break
+	ev := &Event{FilePath: filePath, Schema: 1, Body: body}
+	for key, val := range meta {
+		switch key {
+		case "id":
+			ev.ID = val
+		case "schema":
+			if val == "1" {
+				ev.Schema = 1
+			}
+		case "type":
+			ev.Type = Type(val)
+		case "created_at":
+			t, err := parseTimestamp(val)
+			if err != nil {
+				return nil, fmt.Errorf("frontmatter: bad created_at: %s", val)
+			}
+			ev.CreatedAt = t
+		case "due":
+			t, err := parseDue(val)
+			if err != nil {
+				return nil, fmt.Errorf("frontmatter: bad due: %s", val)
+			}
+			ev.Due = &t
+		case "source":
+			ev.Source = val
+		case "agent":
+			ev.Agent = val
+		case "status":
+			ev.Status = Status(val)
+		case "tags":
+			ev.Tags = frontmatter.ParseInlineList(val)
+		case "links":
+			ev.Links = frontmatter.ParseInlineList(val)
 		}
-		fmLines = append(fmLines, line)
 	}
-
-	ev := &Event{FilePath: filePath, Schema: 1}
-	if err := parseFrontmatter(fmLines, ev); err != nil {
-		return nil, fmt.Errorf("frontmatter: %w", err)
-	}
-
-	// Rest is body
-	var bodyLines []string
-	for scanner.Scan() {
-		bodyLines = append(bodyLines, scanner.Text())
-	}
-	ev.Body = strings.Join(bodyLines, "\n")
-
-	return ev, scanner.Err()
+	return ev, nil
 }
 
 func ParseFile(path string) (*Event, error) {
@@ -97,72 +110,19 @@ func ParseFile(path string) (*Event, error) {
 	return Parse(f, path)
 }
 
-func parseFrontmatter(lines []string, ev *Event) error {
-	for _, line := range lines {
-		key, val, ok := splitKV(line)
-		if !ok {
-			continue
-		}
-		switch key {
-		case "id":
-			ev.ID = val
-		case "schema":
-			if val == "1" {
-				ev.Schema = 1
-			}
-		case "type":
-			ev.Type = Type(val)
-		case "created_at":
-			t, err := time.Parse(time.RFC3339, val)
-			if err != nil {
-				t, err = time.Parse("2006-01-02T15:04:05Z", val)
-				if err != nil {
-					return fmt.Errorf("bad created_at: %s", val)
-				}
-			}
-			ev.CreatedAt = t
-		case "source":
-			ev.Source = val
-		case "agent":
-			ev.Agent = val
-		case "status":
-			ev.Status = Status(val)
-		case "tags":
-			ev.Tags = parseYAMLList(val)
-		case "links":
-			ev.Links = parseYAMLList(val)
-		}
+func parseTimestamp(val string) (time.Time, error) {
+	if t, err := time.Parse(time.RFC3339, val); err == nil {
+		return t, nil
 	}
-	return nil
+	return time.Parse("2006-01-02T15:04:05Z", val)
 }
 
-func splitKV(line string) (string, string, bool) {
-	idx := strings.Index(line, ":")
-	if idx < 0 {
-		return "", "", false
+// parseDue accepts ISO 8601 date (2026-05-25) or full RFC3339 timestamp.
+func parseDue(val string) (time.Time, error) {
+	if t, err := time.Parse("2006-01-02", val); err == nil {
+		return t, nil
 	}
-	key := strings.TrimSpace(line[:idx])
-	val := strings.TrimSpace(line[idx+1:])
-	return key, val, true
-}
-
-// parseYAMLList handles inline YAML lists: [foo, bar, baz]
-func parseYAMLList(val string) []string {
-	val = strings.TrimSpace(val)
-	if val == "[]" || val == "" {
-		return nil
-	}
-	val = strings.TrimPrefix(val, "[")
-	val = strings.TrimSuffix(val, "]")
-	parts := strings.Split(val, ",")
-	var result []string
-	for _, p := range parts {
-		p = strings.TrimSpace(p)
-		if p != "" {
-			result = append(result, p)
-		}
-	}
-	return result
+	return parseTimestamp(val)
 }
 
 // SortByTime sorts events newest first.
