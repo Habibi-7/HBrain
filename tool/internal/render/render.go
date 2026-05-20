@@ -1,16 +1,11 @@
 package render
 
 import (
-	"embed"
-	"html/template"
 	"io"
 	"time"
 
 	"github.com/Habibi-7/hbrain/tool/internal/event"
 )
-
-//go:embed templates/*.html
-var templateFS embed.FS
 
 type DayGroup struct {
 	DateLabel string
@@ -31,23 +26,23 @@ type TimelineData struct {
 	GeneratedAt string
 }
 
-func Timeline(w io.Writer, events []*event.Event, rangeLabel string) error {
+// Timeline renders a list of events as HTML using the given TemplateLoader.
+// The loader resolves "timeline.html" — typically a vault override falling
+// back to the embedded default.
+func Timeline(w io.Writer, events []*event.Event, rangeLabel string, loader TemplateLoader) error {
 	event.SortByTimeAsc(events)
-
-	groups := groupByDay(events)
 
 	data := TimelineData{
 		RangeLabel:  rangeLabel,
 		EventCount:  len(events),
-		DayGroups:   groups,
+		DayGroups:   groupByDay(events),
 		GeneratedAt: time.Now().UTC().Format("2006-01-02 15:04 UTC"),
 	}
 
-	tmpl, err := template.New("timeline.html").ParseFS(templateFS, "templates/timeline.html")
+	tmpl, err := loader.Load("timeline.html")
 	if err != nil {
 		return err
 	}
-
 	return tmpl.Execute(w, data)
 }
 

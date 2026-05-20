@@ -19,3 +19,6 @@ __pycache__/
 /my-vault/
 /scratch/
 /tmp/
+
+# Build artifacts — templates copied from skill/templates/ by `make prep`
+/tool/internal/render/templates/

@@ -31,5 +31,6 @@ func Timeline(w io.Writer, v *vault.Vault, days int) error {
 		label = "This week"
 	}
 
-	return render.Timeline(w, filtered, label)
+	loader := render.DefaultLoader(v.TemplatesDir())
+	return render.Timeline(w, filtered, label, loader)
 }
