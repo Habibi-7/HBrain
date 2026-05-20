@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Habibi-7/hbrain/tool/internal/render"
 	"github.com/Habibi-7/hbrain/tool/internal/skill"
 	"github.com/Habibi-7/hbrain/tool/internal/vault"
 	"github.com/Habibi-7/hbrain/tool/internal/view"
@@ -46,19 +47,40 @@ func main() {
 
 	switch cmd {
 	case "timeline":
-		days := intFlag(os.Args[2:], 7)
-		tmp := tempHTML("timeline")
-		f, err := os.Create(tmp)
+		days, format := parseTimelineArgs(os.Args[2:])
+		if err := validateFormat(format); err != nil {
+			fatal(err)
+		}
+
+		vm, err := view.Timeline(v, days)
 		if err != nil {
 			fatal(err)
 		}
-		if err := view.Timeline(f, v, days); err != nil {
+
+		switch format {
+		case "json":
+			if err := render.TimelineAsJSON(os.Stdout, vm); err != nil {
+				fatal(err)
+			}
+		case "text":
+			if err := render.TimelineAsText(os.Stdout, vm); err != nil {
+				fatal(err)
+			}
+		case "html":
+			tmp := tempHTML("timeline")
+			f, err := os.Create(tmp)
+			if err != nil {
+				fatal(err)
+			}
+			loader := render.DefaultLoader(v.TemplatesDir())
+			if err := render.TimelineAsHTML(f, vm, loader); err != nil {
+				f.Close()
+				fatal(err)
+			}
 			f.Close()
-			fatal(err)
+			openBrowser(tmp)
+			fmt.Printf("Timeline (%d days) → %s\n", days, tmp)
 		}
-		f.Close()
-		openBrowser(tmp)
-		fmt.Printf("Timeline (%d days) → %s\n", days, tmp)
 
 	case "tasks":
 		status := stringFlag(os.Args[2:], "open")
@@ -251,7 +273,9 @@ func usage() {
 Usage: brain <command> [args]
 
 Commands:
-  timeline [days]      Open HTML timeline (default: 7 days)
+  timeline [days] [--format html|json|text]
+                       Render the timeline (default: 7 days, html). html opens
+                       the result in your browser; json|text print to stdout.
   tasks [status|all]   List tasks (default: open, "all" for every status)
   search <query>       Search events by content or tag
   stale [days]         Find stale open/blocked tasks (default: 14 days)
@@ -272,6 +296,38 @@ func intFlag(args []string, def int) int {
 		}
 	}
 	return def
+}
+
+// parseTimelineArgs walks the timeline subcommand args, pulling out the
+// optional positional `days` and the optional `--format <html|json|text>`
+// flag. Unknown args are ignored.
+func parseTimelineArgs(args []string) (days int, format string) {
+	days = 7
+	format = "html"
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch a {
+		case "--format", "-f":
+			if i+1 < len(args) {
+				format = args[i+1]
+				i++
+			}
+		default:
+			if n, err := strconv.Atoi(a); err == nil && n > 0 {
+				days = n
+			}
+		}
+	}
+	return
+}
+
+func validateFormat(format string) error {
+	switch format {
+	case "html", "json", "text":
+		return nil
+	default:
+		return fmt.Errorf("unknown --format %q (want html|json|text)", format)
+	}
 }
 
 func stringFlag(args []string, def string) string {
