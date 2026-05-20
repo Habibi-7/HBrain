@@ -1,6 +1,6 @@
 {
   "name": "hbrain",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "Agent-native second brain skill installer",
   "license": "MIT",
   "bin": {
