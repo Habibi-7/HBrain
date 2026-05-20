@@ -90,7 +90,10 @@ Three criteria from Hugentobler's "Feeding Computer Agents":
 Five types. Use only these:
 
 - `note` — freeform capture (default)
-- `task` — something to do (status: open | done | blocked | cancelled)
+- `task` — something to do
+  - **status**: open | done | blocked | cancelled
+  - **due** *(optional)*: ISO 8601 date (`2026-06-15`) or RFC3339 timestamp.
+    A task with a future `due` is a reminder — no new event type needed.
 - `decision` — "I chose X because Y"
 - `fact` — external reference: quote, spec, number
 - `link` — saved URL with optional commentary
@@ -104,12 +107,41 @@ template:
 | View | What it shows |
 | --- | --- |
 | Timeline | Chronological event stream |
+| Task board | Open / done / blocked / cancelled grouped |
 | Heatmap | Activity density over time |
 | Weekly review | Digest with highlights |
-| Task board | Open / done / blocked grouped |
 | Decision log | Chronological decisions |
 
 Start with timeline. Add views as artifact rules and templates mature.
+
+## Template contract
+
+Default views render through a strict, predictable pipeline so the same
+question always produces the same shape — and so the agent can swap in a
+redesign on demand.
+
+1. **Canonical source** — every default template lives in `skill/templates/`
+   as one file (e.g. `timeline.html`, `tasks.html`). The skill ships these to
+   agents; the tool embeds copies into the binary at build time. There is
+   exactly one source of truth per template.
+2. **Go `html/template` syntax** — placeholders are `{{.FieldName}}`, loops
+   are `{{range .Things}}`. Agents reading the file as a layout reference
+   can read the same syntax the renderer uses.
+3. **Self-contained HTML** — inline CSS, no CDN, no external JS, no build
+   step. A rendered artifact can be opened from disk, emailed, or pasted
+   into a chat with no loss.
+4. **Pluggable loader** — the renderer resolves templates through a
+   `TemplateLoader`. The default chain prefers `$BRAIN_DIR/.brain/templates/`
+   (user override, FileLoader) and falls back to the binary's embedded copy
+   (EmbedLoader). Users can iterate on a template without recompiling.
+5. **ViewModel + adapter pattern** — each view returns a typed ViewModel
+   (e.g. `TimelineVM`, `TaskBoardVM`). Format adapters (`AsHTML`, `AsJSON`,
+   `AsText`) consume the same VM. JSON is a flat envelope the agent can
+   read to build a custom HTML artifact when the default look isn't wanted.
+
+The agent always honors the contract: it never mutates `skill/templates/`,
+and any custom HTML it produces is a separate artifact, never overwriting
+the default.
 
 ## What we own vs. what the agent owns
 

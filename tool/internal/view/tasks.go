@@ -1,76 +1,17 @@
 package view
 
 import (
-	"fmt"
-	"io"
-	"strings"
-
-	"github.com/Habibi-7/hbrain/tool/internal/event"
+	"github.com/Habibi-7/hbrain/tool/internal/render"
 	"github.com/Habibi-7/hbrain/tool/internal/vault"
 )
 
-func Tasks(w io.Writer, v *vault.Vault, status string) error {
+// Tasks gathers all task events from the vault and returns a TaskBoardVM
+// ready for any format adapter (HTML, JSON, text). statusFilter narrows by
+// status (empty = all statuses).
+func Tasks(v *vault.Vault, statusFilter string) (render.TaskBoardVM, error) {
 	all, err := v.AllEvents()
 	if err != nil {
-		return err
+		return render.TaskBoardVM{}, err
 	}
-
-	var tasks []*event.Event
-	for _, ev := range all {
-		if ev.Type != event.Task {
-			continue
-		}
-		if status != "" && string(ev.Status) != status {
-			continue
-		}
-		tasks = append(tasks, ev)
-	}
-
-	event.SortByTime(tasks)
-
-	if len(tasks) == 0 {
-		fmt.Fprintf(w, "No tasks found")
-		if status != "" {
-			fmt.Fprintf(w, " with status=%s", status)
-		}
-		fmt.Fprintln(w, ".")
-		return nil
-	}
-
-	label := "All tasks"
-	if status != "" {
-		label = capitalize(status) + " tasks"
-	}
-	fmt.Fprintf(w, "%s (%d)\n\n", label, len(tasks))
-
-	for _, t := range tasks {
-		marker := "○"
-		switch t.Status {
-		case event.Done:
-			marker = "✓"
-		case event.Blocked:
-			marker = "⊘"
-		case event.Cancelled:
-			marker = "✕"
-		}
-		date := t.CreatedAt.Format("Jan 2")
-		due := ""
-		if t.Due != nil {
-			due = "  due " + t.Due.Format("Jan 2")
-		}
-		tags := ""
-		if len(t.Tags) > 0 {
-			tags = "  #" + strings.Join(t.Tags, " #")
-		}
-		fmt.Fprintf(w, "  %s %s  %s%s%s\n", marker, t.Title(), date, due, tags)
-	}
-
-	return nil
-}
-
-func capitalize(s string) string {
-	if s == "" {
-		return s
-	}
-	return strings.ToUpper(s[:1]) + s[1:]
+	return render.BuildTaskBoardVM(all, statusFilter), nil
 }
