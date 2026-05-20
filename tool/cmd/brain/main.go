@@ -83,12 +83,39 @@ func main() {
 		}
 
 	case "tasks":
-		status := stringFlag(os.Args[2:], "open")
-		if status == "all" {
-			status = ""
-		}
-		if err := view.Tasks(os.Stdout, v, status); err != nil {
+		status, format := parseTasksArgs(os.Args[2:])
+		if err := validateFormat(format); err != nil {
 			fatal(err)
+		}
+
+		vm, err := view.Tasks(v, status)
+		if err != nil {
+			fatal(err)
+		}
+
+		switch format {
+		case "json":
+			if err := render.TaskBoardAsJSON(os.Stdout, vm); err != nil {
+				fatal(err)
+			}
+		case "html":
+			tmp := tempHTML("tasks")
+			f, err := os.Create(tmp)
+			if err != nil {
+				fatal(err)
+			}
+			loader := render.DefaultLoader(v.TemplatesDir())
+			if err := render.TaskBoardAsHTML(f, vm, loader); err != nil {
+				f.Close()
+				fatal(err)
+			}
+			f.Close()
+			openBrowser(tmp)
+			fmt.Printf("Tasks → %s\n", tmp)
+		default: // text
+			if err := render.TaskBoardAsText(os.Stdout, vm); err != nil {
+				fatal(err)
+			}
 		}
 
 	case "search":
@@ -276,7 +303,9 @@ Commands:
   timeline [days] [--format html|json|text]
                        Render the timeline (default: 7 days, html). html opens
                        the result in your browser; json|text print to stdout.
-  tasks [status|all]   List tasks (default: open, "all" for every status)
+  tasks [status|all] [--format html|json|text]
+                       List tasks (default: open, text). "all" disables the
+                       status filter. html opens the result in your browser.
   search <query>       Search events by content or tag
   stale [days]         Find stale open/blocked tasks (default: 14 days)
   stats                Vault overview: counts, types, top tags
@@ -317,6 +346,30 @@ func parseTimelineArgs(args []string) (days int, format string) {
 				days = n
 			}
 		}
+	}
+	return
+}
+
+// parseTasksArgs pulls out the optional positional status filter
+// ("open" by default; "all" means no filter) and the optional
+// `--format <html|json|text>` flag. Default format is text.
+func parseTasksArgs(args []string) (status string, format string) {
+	status = "open"
+	format = "text"
+	for i := 0; i < len(args); i++ {
+		a := args[i]
+		switch a {
+		case "--format", "-f":
+			if i+1 < len(args) {
+				format = args[i+1]
+				i++
+			}
+		default:
+			status = a
+		}
+	}
+	if status == "all" {
+		status = ""
 	}
 	return
 }
