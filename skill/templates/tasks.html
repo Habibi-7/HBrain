@@ -1,11 +1,9 @@
 <!--
-  brain tasks template — v1
-  Canonical default template. Rendered by Go `html/template` via the
-  FileLoader (vault override at $BRAIN_DIR/.brain/templates/tasks.html) or
-  the EmbedLoader (binary fallback).
-  Placeholders are Go-template fields, populated from render.TaskBoardVM.
-  If the user asks for a different design, generate a new self-contained
-  HTML artifact while preserving the source data.
+  brain tasks template — v2 (Linear-dense)
+  Canonical default template. Rendered by Go `html/template` via the FileLoader
+  (vault override at $BRAIN_DIR/.brain/templates/tasks.html) or the EmbedLoader
+  (binary fallback). Placeholders are Go-template fields, populated from
+  render.TaskBoardVM. Design tokens duplicated in timeline.html — keep in sync.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -15,99 +13,248 @@
 <title>{{.Label}} — brain</title>
 <style>
   :root {
-    --bg: #fafafa; --fg: #1a1a1a; --muted: #6b7280;
-    --border: #e5e7eb; --accent: #2563eb;
-    --open: #f59e0b; --done: #10b981;
-    --blocked: #ef4444; --cancelled: #9ca3af;
-    --due-soon: #ef4444;
+    --bg: #fbfbfb;
+    --surface: #ffffff;
+    --surface-hover: #f4f4f5;
+    --fg: #18181b;
+    --fg-muted: #71717a;
+    --fg-subtle: #a1a1aa;
+    --border: #e8e8eb;
+    --border-strong: #d4d4d8;
+
+    --accent: #5e6ad2;
+    --accent-soft: #eef0fb;
+
+    --s-open:      #b45309;
+    --s-done:      #047857;
+    --s-blocked:   #b91c1c;
+    --s-cancelled: #a1a1aa;
+    --s-open-bg:      #fef3c7;
+    --s-done-bg:      #d1fae5;
+    --s-blocked-bg:   #fee2e2;
+    --s-cancelled-bg: #f4f4f5;
+
+    --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #111; --fg: #e5e5e5; --muted: #9ca3af;
-      --border: #333; --accent: #60a5fa;
+      --bg: #0a0a0b;
+      --surface: #111114;
+      --surface-hover: #18181b;
+      --fg: #fafafa;
+      --fg-muted: #a1a1aa;
+      --fg-subtle: #71717a;
+      --border: #27272a;
+      --border-strong: #3f3f46;
+
+      --accent: #8b96e6;
+      --accent-soft: #1c1d2e;
+
+      --s-open:      #fbbf24;
+      --s-done:      #6ee7b7;
+      --s-blocked:   #f87171;
+      --s-cancelled: #71717a;
+      --s-open-bg:      #2a1f08;
+      --s-done-bg:      #0e2a20;
+      --s-blocked-bg:   #2a1010;
+      --s-cancelled-bg: #1f1f22;
     }
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg); color: var(--fg);
-    max-width: 720px; margin: 0 auto; padding: 2rem 1rem;
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--fg);
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 56px 24px 80px;
+    font-size: 14px;
     line-height: 1.5;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  h1 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem; }
-  .meta { color: var(--muted); font-size: 0.8rem; margin-bottom: 1.5rem; }
-  .group { margin-bottom: 1.75rem; }
+  header { margin-bottom: 28px; }
+  h1 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .caption {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--fg-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .group { margin-top: 28px; }
+  .group:first-of-type { margin-top: 0; }
   .group-header {
-    display: flex; align-items: baseline; gap: 0.5rem;
-    padding-bottom: 0.35rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 6px;
+    margin-bottom: 4px;
+  }
+  .group-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
   }
   .group-label {
-    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg);
   }
-  .group-count { font-size: 0.75rem; color: var(--muted); }
-  .group--open     .group-label { color: var(--open); }
-  .group--done     .group-label { color: var(--done); }
-  .group--blocked  .group-label { color: var(--blocked); }
-  .group--cancelled .group-label { color: var(--cancelled); }
+  .group-count {
+    font-size: 11px;
+    color: var(--fg-subtle);
+    font-variant-numeric: tabular-nums;
+  }
+  .group-header::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin-left: 2px;
+  }
+  .group--open      .group-dot   { background: var(--s-open); }
+  .group--done      .group-dot   { background: var(--s-done); }
+  .group--blocked   .group-dot   { background: var(--s-blocked); }
+  .group--cancelled .group-dot   { background: var(--s-cancelled); }
+  .group--open      .group-label { color: var(--s-open); }
+  .group--done      .group-label { color: var(--s-done); }
+  .group--blocked   .group-label { color: var(--s-blocked); }
+  .group--cancelled .group-label { color: var(--s-cancelled); }
+
+  .tasks { list-style: none; display: flex; flex-direction: column; }
   .task {
-    display: flex; gap: 0.5rem; align-items: baseline;
-    padding: 0.4rem 0;
+    display: grid;
+    grid-template-columns: 20px 1fr auto auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 7px 8px;
+    margin: 0 -8px;
+    border-radius: 5px;
+    min-height: 30px;
   }
-  .task + .task { border-top: 1px solid var(--border); }
+  .task:hover { background: var(--surface-hover); }
   .task-marker {
-    font-size: 0.95rem; width: 1.2rem; text-align: center;
-    color: var(--muted); flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1;
+    text-align: center;
+    color: var(--fg-subtle);
   }
-  .task--open      .task-marker { color: var(--open); }
-  .task--done      .task-marker { color: var(--done); }
-  .task--blocked   .task-marker { color: var(--blocked); }
-  .task--cancelled .task-marker { color: var(--cancelled); }
-  .task-title { flex: 1; font-size: 0.9rem; }
-  .task--done      .task-title { text-decoration: line-through; color: var(--muted); }
-  .task--cancelled .task-title { text-decoration: line-through; color: var(--muted); }
+  .task--open      .task-marker { color: var(--s-open); }
+  .task--done      .task-marker { color: var(--s-done); }
+  .task--blocked   .task-marker { color: var(--s-blocked); }
+  .task--cancelled .task-marker { color: var(--s-cancelled); }
+  .task-title {
+    color: var(--fg);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .task--done      .task-title,
+  .task--cancelled .task-title {
+    text-decoration: line-through;
+    text-decoration-color: var(--fg-subtle);
+    color: var(--fg-muted);
+  }
   .task-due {
-    font-size: 0.72rem; color: var(--muted);
-    padding: 0.05rem 0.4rem; border: 1px solid var(--border);
-    border-radius: 3px; white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--s-open);
+    background: var(--s-open-bg);
+    padding: 1px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
   }
-  .task-date { font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
-  .task-tags { font-size: 0.7rem; color: var(--muted); }
-  .footer {
-    margin-top: 2rem; padding-top: 0.75rem;
+  .task--done .task-due,
+  .task--cancelled .task-due {
+    color: var(--fg-subtle);
+    background: var(--surface-hover);
+  }
+  .task-date {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg-subtle);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .task-tags {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fg-subtle);
+    white-space: nowrap;
+  }
+  .empty {
+    margin-top: 16px;
+    padding: 24px;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    text-align: center;
+    color: var(--fg-muted);
+    font-size: 13px;
+  }
+  footer {
+    margin-top: 48px;
+    padding-top: 12px;
     border-top: 1px solid var(--border);
-    font-size: 0.7rem; color: var(--muted);
+    font-size: 11px;
+    color: var(--fg-subtle);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 560px) {
+    body { padding: 32px 16px 48px; }
+    .task {
+      grid-template-columns: 20px 1fr auto;
+      row-gap: 2px;
+    }
+    .task-title { white-space: normal; grid-column: 2 / -1; }
+    .task-due { grid-column: 2; justify-self: start; }
+    .task-date, .task-tags { grid-column: 2 / -1; }
   }
 </style>
 </head>
 <body>
-  <h1>{{.Label}}</h1>
-  <div class="meta">{{.TotalCount}} task{{if ne .TotalCount 1}}s{{end}}</div>
+  <header>
+    <h1>{{.Label}}</h1>
+    <div class="caption">{{.TotalCount}} task{{if ne .TotalCount 1}}s{{end}}</div>
+  </header>
 
   {{range .Groups}}
   <section class="group group--{{.Status}}">
     <div class="group-header">
+      <span class="group-dot"></span>
       <span class="group-label">{{.Label}}</span>
-      <span class="group-count">· {{.Count}}</span>
+      <span class="group-count">{{.Count}}</span>
     </div>
-    {{range .Tasks}}
-    <div class="task task--{{.Status}}">
-      <span class="task-marker">{{if eq .Status "done"}}✓{{else if eq .Status "blocked"}}⊘{{else if eq .Status "cancelled"}}✕{{else}}○{{end}}</span>
-      <span class="task-title">{{.Title}}</span>
-      {{if .Due}}<span class="task-due">due {{.Due.Format "Jan 2"}}</span>{{end}}
-      <span class="task-date">{{.CreatedAt.Format "Jan 2"}}</span>
-      {{if .Tags}}<span class="task-tags">#{{range $i, $t := .Tags}}{{if $i}} #{{end}}{{$t}}{{end}}</span>{{end}}
-    </div>
-    {{end}}
+    <ul class="tasks">
+      {{range .Tasks}}
+      <li class="task task--{{.Status}}">
+        <span class="task-marker">{{if eq .Status "done"}}✓{{else if eq .Status "blocked"}}⊘{{else if eq .Status "cancelled"}}✕{{else}}○{{end}}</span>
+        <span class="task-title">{{.Title}}</span>
+        {{if .Due}}<span class="task-due">{{.Due.Format "Jan 2"}}</span>{{end}}
+        <span class="task-date">{{.CreatedAt.Format "Jan 2"}}</span>
+        {{if .Tags}}<span class="task-tags">#{{range $i, $t := .Tags}}{{if $i}} #{{end}}{{$t}}{{end}}</span>{{end}}
+      </li>
+      {{end}}
+    </ul>
   </section>
   {{end}}
 
   {{if eq .TotalCount 0}}
-  <p class="meta">No tasks found.</p>
+  <div class="empty">No tasks found.</div>
   {{end}}
 
-  <div class="footer">Generated by brain · {{.GeneratedAt}}</div>
+  <footer>Generated by brain · {{.GeneratedAt}}</footer>
 </body>
 </html>
