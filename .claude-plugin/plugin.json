@@ -1,12 +1,22 @@
 {
   "name": "hbrain",
-  "description": "Agent-native second brain. Capture notes, tasks, decisions, facts, and links as plain markdown files the user owns. Render Linear-style HTML views via the bundled `brain` CLI.",
-  "version": "0.4.1",
+  "description": "Agent-native second brain. Capture notes, tasks, decisions, facts, and saved links as plain markdown files you own. Render Linear-style HTML views via the bundled `brain` CLI. Includes slash commands (/hbrain:timeline, /hbrain:tasks, /hbrain:capture, /hbrain:doctor, /hbrain:setup) and a SessionStart hook that auto-detects your vault and agent identity every turn.",
+  "version": "0.4.2",
   "author": {
     "name": "Habib Habibi",
     "url": "https://github.com/Habibi-7"
   },
   "homepage": "https://github.com/Habibi-7/hbrain",
   "repository": "https://github.com/Habibi-7/hbrain",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "second-brain",
+    "memory",
+    "notes",
+    "tasks",
+    "knowledge-management",
+    "markdown",
+    "capture",
+    "productivity"
+  ]
 }

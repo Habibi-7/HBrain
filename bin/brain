@@ -1,13 +1,37 @@
 #!/usr/bin/env bash
-# brain — platform-dispatch shim.
-# Picks the right prebuilt binary in this directory based on host OS/arch.
-# When the HBrain plugin is enabled, Claude Code adds this directory to PATH,
-# so the agent (and the user) can run `brain` directly.
+# brain — platform-aware shim for the HBrain plugin.
+#
+# On first invocation per (version, platform), downloads the matching
+# pre-built binary from GitHub Releases and caches it under
+# ~/.cache/hbrain/<version>/brain-<os>-<arch>. Subsequent invocations skip
+# the network entirely.
+#
+# Why not ship binaries with the plugin? They're ~4MB each, 5 platforms =
+# ~20MB. Anthropic's plugin marketplace prefers small payloads and a
+# minimal executable surface to safety-scan. This script ships ~30 lines;
+# the binaries live as GitHub Release assets, fetched on demand.
 
 set -u
 
+# ── plugin context ─────────────────────────────────────────────────────────
 here="$(cd "$(dirname "$0")" && pwd)"
+plugin_root="$(dirname "$here")"
+manifest="${plugin_root}/.claude-plugin/plugin.json"
 
+if [ ! -f "$manifest" ]; then
+  printf 'brain: plugin manifest not found at %s\n' "$manifest" >&2
+  exit 127
+fi
+
+# Strip the version from plugin.json without requiring jq. The line looks
+# like:  "version": "0.4.2",
+version="$(sed -nE 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' "$manifest" | head -1)"
+if [ -z "${version:-}" ]; then
+  printf 'brain: could not read version from %s\n' "$manifest" >&2
+  exit 127
+fi
+
+# ── platform detection ─────────────────────────────────────────────────────
 os="$(uname -s | tr '[:upper:]' '[:lower:]')"
 case "$os" in
   mingw*|msys*|cygwin*) os="windows" ;;
@@ -22,12 +46,36 @@ esac
 ext=""
 [ "$os" = "windows" ] && ext=".exe"
 
-bin="${here}/brain-${os}-${arch}${ext}"
+asset="brain-${os}-${arch}${ext}"
 
-if [ ! -x "$bin" ]; then
-  printf 'brain: no prebuilt binary for %s-%s at %s\n' "$os" "$arch" "$bin" >&2
-  printf '       build from source: cd tool && make install\n' >&2
-  exit 127
+# ── cache + fetch ──────────────────────────────────────────────────────────
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/hbrain/v${version}"
+bin_path="${cache_dir}/${asset}"
+
+if [ ! -x "$bin_path" ]; then
+  mkdir -p "$cache_dir"
+  url="https://github.com/Habibi-7/hbrain/releases/download/v${version}/${asset}"
+
+  if command -v curl >/dev/null 2>&1; then
+    if ! curl -fsSL "$url" -o "${bin_path}.tmp"; then
+      rm -f "${bin_path}.tmp"
+      printf 'brain: failed to download %s\n' "$url" >&2
+      printf '       check network, or build from source: cd tool && make install\n' >&2
+      exit 127
+    fi
+  elif command -v wget >/dev/null 2>&1; then
+    if ! wget -qO "${bin_path}.tmp" "$url"; then
+      rm -f "${bin_path}.tmp"
+      printf 'brain: failed to download %s\n' "$url" >&2
+      exit 127
+    fi
+  else
+    printf 'brain: curl or wget required to fetch the binary\n' >&2
+    exit 127
+  fi
+
+  chmod +x "${bin_path}.tmp"
+  mv "${bin_path}.tmp" "$bin_path"
 fi
 
-exec "$bin" "$@"
+exec "$bin_path" "$@"

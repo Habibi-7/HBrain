@@ -1,21 +1,21 @@
 # HBrain
 
-HBrain is a skill for computer agents. It teaches Cursor, Claude Code/Cowork,
-OpenAI Codex, Windsurf, and similar agents to notice durable thoughts in natural
-conversation, save them as plain markdown files you own, and render useful HTML
-views when you ask.
-
-The core idea:
+**Agent-native second brain.** A Claude Code plugin (also installable as a
+plain skill for Cursor, Codex, Windsurf, etc.) that teaches your computer
+agent to notice durable thoughts in natural conversation, save them as plain
+markdown files you own, and render Linear-style HTML views when you ask.
 
 ```text
 Markdown memory + LLM judgment + HTML artifacts
 ```
 
-No database is required. No server is required. The optional `brain` CLI is only
-a helper for mechanical work like counts, task lists, and default timelines.
+No database. No server. No proprietary format. Your vault is a folder of
+markdown files you can edit in any text editor — HBrain just gives the
+agent the rules and tools to maintain it for you.
 
-HBrain is open source. The npm package is only the installer transport; the
-source, skill, templates, and installer code live in this public repository.
+The optional `brain` CLI does mechanical work (counts, task boards, timeline
+renders). The agent reaches for it when it pays off and falls back to direct
+file reads when not.
 
 ## What It Feels Like
 

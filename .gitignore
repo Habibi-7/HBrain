@@ -22,3 +22,9 @@ __pycache__/
 
 # Build artifacts — templates copied from skill/templates/ by `make prep`
 /tool/internal/render/templates/
+
+# Pre-built brain binaries are NOT committed. The bin/brain shim
+# downloads them on demand from GitHub Releases. `make plugin` may
+# stage them here for local offline testing.
+/bin/brain-*-*
+/bin/brain-*-*.exe
