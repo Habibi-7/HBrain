@@ -45,10 +45,30 @@ likely to matter later.
 
 ## Quick Start
 
-### Claude Code (recommended)
+Different surfaces, different install. Pick yours.
 
-HBrain ships as a Claude Code plugin. One-shot install from the self-hosted
-marketplace:
+### Cowork (web, on claude.ai)
+
+Two sentences. **(1)** Mount a folder from your real machine into Cowork
+via the folder connector — recommended path `~/brain`. **(2)** Paste this
+into chat:
+
+```text
+Install HBrain. Clone github.com/Habibi-7/hbrain into this session, copy
+skills/hbrain/ into your skill discovery path, and set BRAIN_DIR to
+<MOUNTED_PATH>. Then read skills/hbrain/SKILL.md, confirm the vault is
+persistent, and respond with `HBrain ready · vault: <MOUNTED_PATH>`.
+```
+
+Replace `<MOUNTED_PATH>` with the path Cowork reports in step 1. Full
+guide + troubleshooting: [INSTALL_COWORK.md](./INSTALL_COWORK.md).
+
+A one-click Cowork plugin is coming via Anthropic's community marketplace
+([HH-618](https://linear.app/hhabibi/issue/HH-618)).
+
+### Claude Code CLI (terminal)
+
+One-shot install from the self-hosted marketplace:
 
 ```text
 /plugin marketplace add Habibi-7/hbrain
@@ -98,9 +118,10 @@ npx hbrain install --cursor --no-vault
 
 Platform install paths:
 
-| Platform | Install method | Install path |
+| Platform | Install method | Notes |
 | --- | --- | --- |
-| Claude Code / Cowork | `/plugin install hbrain` | Plugin managed |
+| Claude Code CLI | `/plugin install hbrain` | Full plugin: hook + slash commands + bundled binary |
+| Cowork (web) | Two-step paste — see [INSTALL_COWORK.md](./INSTALL_COWORK.md) | Skill-only (no hook/binary in sandbox) until the `.plugin` lands |
 | Cursor | `npx hbrain install --cursor` | `.cursor/rules/brain.mdc` |
 | OpenAI Codex | `npx hbrain install --codex` | `AGENTS.md` managed block |
 | Windsurf | `npx hbrain install --windsurf` | `.windsurf/rules/brain.md` |
