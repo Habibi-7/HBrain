@@ -1,0 +1,15 @@
+description = "Walk the user through mounting a persistent HBrain vault. Use on first install or when `brain doctor` reports an ephemeral path."
+prompt = """
+The user wants to set up (or re-set-up) their HBrain vault.
+
+1. Read `skills/hbrain/vault-setup.md` in full.
+2. Run `brain doctor` (or the in-skill sandbox check if the CLI is missing).
+3. Walk the user through the §1a / §1b / §1c flow from `vault-setup.md`,
+   asking only the questions the doc requires. Default vault location is
+   `~/brain` on local machines.
+4. After mounting, run `brain doctor` again to confirm persistence and
+   print `HBrain ready · vault: <path>`.
+
+Do not capture anything during setup. Do not propose example prompts after
+setup completes.
+"""

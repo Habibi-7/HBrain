@@ -1,0 +1,32 @@
+description = "Capture the supplied text as an HBrain event. Bypasses LLM-judgment about whether to capture — if the user invoked this command, capture."
+prompt = """
+The user explicitly asked to capture this text into HBrain. Do not second-guess
+whether it's worth capturing.
+
+Text to capture:
+
+```
+$ARGUMENTS
+```
+
+Follow the capture flow in `skills/hbrain/SKILL.md` §1:
+
+1. Resolve `$BRAIN_DIR` (or default `$HOME/brain`). If the path is ephemeral,
+   refuse and instruct the user to mount a persistent folder (see
+   `skills/hbrain/vault-setup.md` §1a) UNLESS they've already overridden.
+2. Pick the event type using LLM judgment on the text — default to `note`
+   when unsure. For tasks, set `status: open` and optionally extract a due
+   date.
+3. Generate a ULID. Write the file at
+   `$BRAIN_DIR/events/YYYY/MM/DD/<ulid>-<slug>.md` with the canonical
+   frontmatter (see SKILL.md §1).
+4. Use the user's phrasing verbatim. No paraphrasing.
+5. Respond with exactly one line, no preamble:
+
+   ```
+   ✓ <type> saved · <ulid-prefix>
+   ```
+
+   For tasks: `✓ task saved · open · <ulid-prefix>` (add `· due <date>` only
+   if extracted).
+"""

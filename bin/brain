@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# brain — platform-dispatch shim.
+# Picks the right prebuilt binary in this directory based on host OS/arch.
+# When the HBrain plugin is enabled, Claude Code adds this directory to PATH,
+# so the agent (and the user) can run `brain` directly.
+
+set -u
+
+here="$(cd "$(dirname "$0")" && pwd)"
+
+os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+case "$os" in
+  mingw*|msys*|cygwin*) os="windows" ;;
+esac
+
+arch="$(uname -m)"
+case "$arch" in
+  x86_64|amd64) arch="amd64" ;;
+  aarch64|arm64) arch="arm64" ;;
+esac
+
+ext=""
+[ "$os" = "windows" ] && ext=".exe"
+
+bin="${here}/brain-${os}-${arch}${ext}"
+
+if [ ! -x "$bin" ]; then
+  printf 'brain: no prebuilt binary for %s-%s at %s\n' "$os" "$arch" "$bin" >&2
+  printf '       build from source: cd tool && make install\n' >&2
+  exit 127
+fi
+
+exec "$bin" "$@"

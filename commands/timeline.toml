@@ -1,0 +1,24 @@
+description = "Render an HBrain timeline as an HTML artifact. Optional argument: number of days (default 7)."
+prompt = """
+Run the bundled `brain` CLI to render the timeline as a self-contained HTML
+artifact that opens in the user's browser.
+
+Command:
+
+```
+brain timeline $ARGUMENTS --format html
+```
+
+If `$ARGUMENTS` is empty, omit the days argument so the CLI uses its default
+(7 days).
+
+After the command prints the temp-file path, respond with exactly one line in
+this shape and nothing else:
+
+```
+Timeline · <range> · <count> events
+```
+
+Do NOT read `skills/hbrain/templates/*.html`. Do NOT read
+`skills/hbrain/design.md`. The CLI handles rendering.
+"""

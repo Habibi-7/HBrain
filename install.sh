@@ -56,7 +56,7 @@ strip_skill_frontmatter() {
 write_platform_skill() {
   platform_name="$1"; agent_name="$2"; output_path="$3"
   skill_tmp="${TMPDIR:-/tmp}/brain-skill-$$.md"
-  fetch "skill/SKILL.md" "$skill_tmp"
+  fetch "skills/hbrain/SKILL.md" "$skill_tmp"
   mkdir -p "$(dirname "$output_path")"
 
   case "$platform_name" in
@@ -100,7 +100,7 @@ remove_managed_block() {
 append_managed_skill() {
   managed_path="$1"; agent_name="$2"
   skill_tmp="${TMPDIR:-/tmp}/brain-skill-$$.md"
-  fetch "skill/SKILL.md" "$skill_tmp"
+  fetch "skills/hbrain/SKILL.md" "$skill_tmp"
   mkdir -p "$(dirname "$managed_path")"
   touch "$managed_path"
   remove_managed_block "$managed_path"
@@ -119,7 +119,7 @@ append_managed_skill() {
 
 install_claude_code() {
   dest="$HOME/.claude/skills/brain.md"
-  fetch "skill/SKILL.md" "$dest"
+  fetch "skills/hbrain/SKILL.md" "$dest"
   ok "Claude Code  →  $dest"
   SKILL_INSTALLED=1
 }

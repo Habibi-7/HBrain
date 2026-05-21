@@ -1,0 +1,24 @@
+description = "Render an HBrain task board as an HTML artifact. Optional argument: status filter (open | done | blocked | cancelled | all)."
+prompt = """
+Run the bundled `brain` CLI to render the task board as a self-contained HTML
+artifact that opens in the user's browser.
+
+If `$ARGUMENTS` is a valid status (`open`, `done`, `blocked`, `cancelled`, or
+`all`), pass it through. Otherwise default to no filter.
+
+Command:
+
+```
+brain tasks $ARGUMENTS --format html
+```
+
+After the command prints the temp-file path, respond with exactly one line in
+this shape and nothing else:
+
+```
+Tasks · <count> <status-or-all>
+```
+
+Do NOT read the template files. Do NOT read `skills/hbrain/design.md`. The
+CLI handles rendering.
+"""

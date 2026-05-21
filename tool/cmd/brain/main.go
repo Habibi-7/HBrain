@@ -15,7 +15,7 @@ import (
 	"github.com/Habibi-7/hbrain/tool/internal/view"
 )
 
-const version = "0.3.1"
+const version = "0.4.0"
 
 func main() {
 	if len(os.Args) < 2 {

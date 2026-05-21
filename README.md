@@ -43,29 +43,33 @@ examples. The skill teaches semantic judgment: capture plans, decisions, tasks,
 preferences, facts, links, project updates, and recurring thoughts when they are
 likely to matter later.
 
-## Quick Start For Non-Technical Users
+## Quick Start
 
-Paste this into your agent:
+### Claude Code (recommended)
 
-```text
-Install HBrain for me with:
-npx hbrain install
-```
-
-The agent will ask where to keep your vault, install the right skill/rule for
-your platform, create the vault folders, copy default templates, and verify the
-setup.
-
-Default vault:
+HBrain ships as a Claude Code plugin. One-shot install from the self-hosted
+marketplace:
 
 ```text
-~/brain
+/plugin marketplace add Habibi-7/hbrain
+/plugin install hbrain
 ```
 
-## Install Yourself
+That gets you:
 
-The npm installer auto-detects supported agent platforms and installs the
-skill in the right place:
+- A SessionStart hook that auto-detects your vault and agent identity every
+  turn (no more "agent forgot to run `brain doctor`")
+- Slash commands: `/hbrain:timeline`, `/hbrain:tasks`, `/hbrain:capture`,
+  `/hbrain:doctor`, `/hbrain:setup`
+- The bundled `brain` CLI on `PATH` (no separate Go install)
+- The full HBrain skill (capture rules, design system, query recipes)
+
+Default vault: `~/brain`. Override with `BRAIN_DIR=/path/to/vault`.
+
+### Other agents (Cursor, Codex, Windsurf)
+
+For non–Claude-Code agents, the npm installer drops the skill into the right
+place for your platform:
 
 ```bash
 npx hbrain install
@@ -94,15 +98,15 @@ npx hbrain install --cursor --no-vault
 
 Platform install paths:
 
-| Platform | Install path |
-| --- | --- |
-| Claude Code / Cowork | `~/.claude/skills/brain.md` |
-| Cursor | `.cursor/rules/brain.mdc` |
-| OpenAI Codex | `AGENTS.md` managed block |
-| Windsurf | `.windsurf/rules/brain.md` |
-| Any agent | Load or paste `skill/SKILL.md` |
+| Platform | Install method | Install path |
+| --- | --- | --- |
+| Claude Code / Cowork | `/plugin install hbrain` | Plugin managed |
+| Cursor | `npx hbrain install --cursor` | `.cursor/rules/brain.mdc` |
+| OpenAI Codex | `npx hbrain install --codex` | `AGENTS.md` managed block |
+| Windsurf | `npx hbrain install --windsurf` | `.windsurf/rules/brain.md` |
+| Any agent | manual | Load or paste `skills/hbrain/SKILL.md` |
 
-Platform wrappers are generated from `skill/SKILL.md`, so the skill has one
+Platform wrappers are generated from `skills/hbrain/SKILL.md`, so the skill has one
 source of truth.
 
 Source install is still available for contributors:
@@ -292,7 +296,7 @@ See [`STRUCTURE.md`](./STRUCTURE.md) for the current file/folder map.
 
 Important files:
 
-- `skill/SKILL.md`: canonical product skill.
+- `skills/hbrain/SKILL.md`: canonical product skill.
 - `bin/hbrain.js`: zero-dependency npm/npx installer command.
 - `package.json`: npm package metadata for `hbrain`.
 - `install.sh`: source checkout installer.

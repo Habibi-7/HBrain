@@ -1,0 +1,12 @@
+description = "Run HBrain vault diagnostic — prints HOME, BRAIN_DIR, vault path, persistence check."
+prompt = """
+Run `brain doctor` and print its output verbatim. No interpretation, no
+commentary.
+
+```
+brain doctor
+```
+
+If the CLI is missing, fall back to the sandbox check in
+`skills/hbrain/vault-setup.md` §1a and print the equivalent fields.
+"""

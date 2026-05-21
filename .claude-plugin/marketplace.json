@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "hbrain",
+  "description": "Self-hosted marketplace for the HBrain plugin — an agent-native second brain backed by a plain-markdown vault.",
+  "owner": {
+    "name": "Habib Habibi",
+    "url": "https://github.com/Habibi-7"
+  },
+  "plugins": [
+    {
+      "name": "hbrain",
+      "description": "Capture notes, tasks, decisions, facts, and links as markdown. Render Linear-style HTML views via the bundled `brain` CLI. Includes slash commands for /hbrain:timeline, /hbrain:tasks, /hbrain:capture, /hbrain:doctor, /hbrain:setup, and a SessionStart hook that auto-detects the vault and agent identity.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
