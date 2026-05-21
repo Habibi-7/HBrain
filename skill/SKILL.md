@@ -334,49 +334,29 @@ Rules:
 
 ### HBrain artifact style guide
 
-Use this style for every HBrain HTML artifact unless the user explicitly asks
-for a different style. This is intentionally strict so the user can tell whether
-you are following HBrain.
+**Read `skill/design.md` before rendering any HTML artifact.** It is the
+single source of truth for tokens, components, charts, and interactivity
+patterns. Use its tokens and components verbatim. Do not invent design.
 
-Identity:
+Non-negotiables (the rest lives in `design.md`):
 
-- Every artifact title starts with `HBrain ·`.
-- The visible header includes the view name, date range, event count, filters,
-  and generated time.
-- The footer says `HBrain` and names the vault or source path when known.
-
-Color:
-
-- Use only black, white, and red.
-- Allowed colors: `#000000`, `#ffffff`, `#f5f5f5`, `#e5e5e5`, `#999999`,
-  `#666666`, `#cc0000`, `#ff0000`.
-- Do not use blue, green, purple, orange, gradients, or pastel status colors.
-- Use red for emphasis, active states, selected dates, task markers, and alerts.
-
-Shape and layout:
-
-- No rounded corners. `border-radius: 0` everywhere.
-- No shadows, glassmorphism, blurred panels, emoji decoration, or decorative
-  gradients.
-- Prefer strong grid alignment, thin black/gray borders, generous whitespace,
-  and plain typography.
-- Use semantic HTML: `header`, `main`, `section`, `article`, `footer`, `time`.
-- Keep layouts responsive without external CSS frameworks.
-
-Interaction honesty:
-
-- Do not claim hover, filtering, sorting, clicking, or animation unless the HTML
-  actually implements it with inline JavaScript.
-- If the artifact is static, describe it as static.
-
-Event display:
-
-- Use consistent labels for event types: `note`, `task`, `decision`, `fact`,
-  `link`.
-- Preserve source text. Do not summarize event bodies unless the view explicitly
-  asks for a digest or synthesis.
-- For tasks, show status and due date if known. Do not promise reminders unless
-  a real reminder tool exists and succeeded.
+- **Read `design.md` first.** Paste its tokens block, paste its base block,
+  then assemble the artifact from its components. Custom views must feel
+  like siblings to `timeline.html` and `tasks.html`.
+- **Self-contained.** Inline CSS, inline SVG, inline JS. No external fonts,
+  no CDN, no framework. Must open from `file://` with no network.
+- **Provenance.** Header shows view name, range, count, filters. Footer
+  shows generation time and vault path when known.
+- **Source data is honest.** Do not invent events, counts, dates, or links.
+  Preserve the user's phrasing — do not summarize bodies unless the view
+  explicitly digests.
+- **Interaction honesty.** Do not claim hover, filtering, sorting, or
+  animation unless the HTML implements it with inline JS. See
+  `design.md` §7 for patterns.
+- **Event labels stay consistent.** `note`, `task`, `decision`, `fact`,
+  `link`. Statuses: `open`, `done`, `blocked`, `cancelled`.
+- **Reminder boundary.** For tasks, show status and due date if known.
+  Never imply a reminder fired unless a real tool succeeded.
 
 ### Template flow
 
@@ -395,6 +375,7 @@ opinionated file with `{{placeholder}}` slots.
 | Template | Use when |
 | --- | --- |
 | `timeline.html` | "Show my week", "my timeline", "recent events" |
+| `tasks.html` | "Show my tasks", "task board", "what's open" |
 
 If no template exists, create a clean HTML artifact that follows the contract.
 Templates are a starting point; the agent may design a better view when the user
