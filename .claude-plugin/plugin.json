@@ -1,0 +1,12 @@
+{
+  "name": "hbrain",
+  "description": "Agent-native second brain. Capture notes, tasks, decisions, facts, and links as plain markdown files the user owns. Render Linear-style HTML views via the bundled `brain` CLI.",
+  "version": "0.4.0",
+  "author": {
+    "name": "Habib Habibi",
+    "url": "https://github.com/Habibi-7"
+  },
+  "homepage": "https://github.com/Habibi-7/hbrain",
+  "repository": "https://github.com/Habibi-7/hbrain",
+  "license": "MIT"
+}
