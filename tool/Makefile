@@ -34,10 +34,11 @@ cross: prep
 	GOOS=linux   GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o dist/brain-linux-arm64  ./cmd/brain/
 	GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o dist/brain-windows-amd64.exe ./cmd/brain/
 
-# plugin stages all cross-compiled binaries into ../bin/ for the Claude Code
-# plugin layout. ../bin/brain is a shim script that dispatches to the right
-# brain-<os>-<arch> per host. The shim itself is hand-maintained — this
-# target only refreshes the dispatched binaries.
+# plugin stages all cross-compiled binaries into ../bin/ for *local* offline
+# testing only. These binaries are gitignored — the shipped plugin contains
+# just the bin/brain shim, which downloads the matching binary on demand
+# from a GitHub Release. The .github/workflows/release.yml CI uploads the
+# cross-compiled binaries to a Release when a v*.*.* tag is pushed.
 plugin: cross
 	@mkdir -p $(PLUGIN_BIN_DIR)
 	@cp dist/brain-darwin-arm64     $(PLUGIN_BIN_DIR)/brain-darwin-arm64
@@ -46,4 +47,4 @@ plugin: cross
 	@cp dist/brain-linux-arm64      $(PLUGIN_BIN_DIR)/brain-linux-arm64
 	@cp dist/brain-windows-amd64.exe $(PLUGIN_BIN_DIR)/brain-windows-amd64.exe
 	@chmod +x $(PLUGIN_BIN_DIR)/brain-*
-	@echo "staged $$(ls $(PLUGIN_BIN_DIR)/brain-* | wc -l | tr -d ' ') binaries in $(PLUGIN_BIN_DIR)"
+	@echo "staged $$(ls $(PLUGIN_BIN_DIR)/brain-* | wc -l | tr -d ' ') binaries (gitignored) in $(PLUGIN_BIN_DIR)"

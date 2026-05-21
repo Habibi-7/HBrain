@@ -1,0 +1,45 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build brain binaries + create release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: tool/go.mod
+          cache: true
+          cache-dependency-path: tool/go.sum
+
+      - name: Cross-compile brain binaries
+        working-directory: tool
+        run: make cross
+
+      - name: List built artifacts
+        run: ls -lh tool/dist/
+
+      - name: Create GitHub Release with binary assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          gh release create "$tag" \
+            --title "$tag" \
+            --notes "Auto-generated release for $tag. Binaries are downloaded on demand by the bin/brain shim in the plugin." \
+            tool/dist/brain-darwin-arm64 \
+            tool/dist/brain-darwin-amd64 \
+            tool/dist/brain-linux-amd64 \
+            tool/dist/brain-linux-arm64 \
+            tool/dist/brain-windows-amd64.exe
