@@ -8,8 +8,9 @@ const https = require("https");
 const { spawnSync } = require("child_process");
 
 const PACKAGE_ROOT = path.resolve(__dirname, "..");
-const SKILL_PATH = path.join(PACKAGE_ROOT, "skill", "SKILL.md");
-const TEMPLATE_DIR = path.join(PACKAGE_ROOT, "skill", "templates");
+const SKILL_DIR = path.join(PACKAGE_ROOT, "skills", "hbrain");
+const SKILL_PATH = path.join(SKILL_DIR, "SKILL.md");
+const TEMPLATE_DIR = path.join(SKILL_DIR, "templates");
 const MANAGED_BEGIN = "<!-- BEGIN HBRAIN -->";
 const MANAGED_END = "<!-- END HBRAIN -->";
 const REGISTRY_URL = "https://registry.npmjs.org/hbrain/latest";
@@ -208,14 +209,27 @@ function uninstall(options) {
           path.join(process.cwd(), ".cursor"),
         ]);
         break;
-      case "claude":
-        removeOwnedFile(path.join(os.homedir(), ".claude", "skills", "brain.md"), "Claude skill");
-        removeOwnedFile(
-          path.join(os.homedir(), ".claude", "skills", "brain", "SKILL.md"),
-          "Claude skill",
-        );
-        pruneEmptyDirs([path.join(os.homedir(), ".claude", "skills", "brain")]);
+      case "claude": {
+        // Current folder install: ~/.claude/skills/hbrain/*
+        const hbrainDir = path.join(os.homedir(), ".claude", "skills", "hbrain");
+        for (const name of ["SKILL.md", "design.md", "vault-setup.md", "queries.md", "cli.md"]) {
+          removeOwnedFile(path.join(hbrainDir, name), "Claude skill");
+        }
+        const tplDir = path.join(hbrainDir, "templates");
+        if (fs.existsSync(tplDir)) {
+          for (const name of fs.readdirSync(tplDir)) {
+            if (name.endsWith(".html")) removeOwnedFile(path.join(tplDir, name), "Claude skill template");
+          }
+          pruneEmptyDirs([tplDir]);
+        }
+        pruneEmptyDirs([hbrainDir]);
+        // Legacy single-file install + legacy folder name.
+        removeOwnedFile(path.join(os.homedir(), ".claude", "skills", "brain.md"), "Claude skill (legacy)");
+        const legacyDir = path.join(os.homedir(), ".claude", "skills", "brain");
+        removeOwnedFile(path.join(legacyDir, "SKILL.md"), "Claude skill (legacy)");
+        pruneEmptyDirs([legacyDir]);
         break;
+      }
       case "codex":
         removeManagedBlock(path.join(process.cwd(), "AGENTS.md"), "OpenAI Codex instructions");
         break;
@@ -282,9 +296,36 @@ function installCursor() {
 }
 
 function installClaude() {
-  const target = path.join(os.homedir(), ".claude", "skills", "brain.md");
-  writeFile(target, readSkill().replaceAll("agent: <agent-name>", "agent: claude-code"));
-  ok(`Claude Code / Cowork → ${target}`);
+  // Install as a folder so SKILL.md's sibling docs (design.md, vault-setup.md,
+  // queries.md, cli.md) are reachable from inside the skill.
+  const targetDir = path.join(os.homedir(), ".claude", "skills", "hbrain");
+  ensureDir(targetDir);
+
+  for (const name of ["SKILL.md", "design.md", "vault-setup.md", "queries.md", "cli.md"]) {
+    const src = path.join(SKILL_DIR, name);
+    if (!fs.existsSync(src)) continue;
+    const body = name === "SKILL.md"
+      ? fs.readFileSync(src, "utf8").replaceAll("agent: <agent-name>", "agent: claude-code")
+      : fs.readFileSync(src, "utf8");
+    fs.writeFileSync(path.join(targetDir, name), body.endsWith("\n") ? body : `${body}\n`);
+  }
+
+  // Templates too — copy the strict view files so per-vault overrides have
+  // something to start from.
+  const templatesDst = path.join(targetDir, "templates");
+  ensureDir(templatesDst);
+  if (fs.existsSync(TEMPLATE_DIR)) {
+    for (const name of fs.readdirSync(TEMPLATE_DIR)) {
+      if (!name.endsWith(".html")) continue;
+      fs.copyFileSync(path.join(TEMPLATE_DIR, name), path.join(templatesDst, name));
+    }
+  }
+
+  // Clean up legacy single-file install from older hbrain versions.
+  const legacy = path.join(os.homedir(), ".claude", "skills", "brain.md");
+  if (fs.existsSync(legacy)) fs.unlinkSync(legacy);
+
+  ok(`Claude Code / Cowork → ${targetDir}`);
 }
 
 function installCodex() {

@@ -49,19 +49,20 @@ Different surfaces, different install. Pick yours.
 
 ### Cowork (web, on claude.ai)
 
-Two sentences. **(1)** Mount a folder from your real machine into Cowork
-via the folder connector — recommended path `~/brain`. **(2)** Paste this
-into chat:
+Paste into chat:
 
 ```text
-Install HBrain. Clone github.com/Habibi-7/hbrain into this session, copy
-skills/hbrain/ into your skill discovery path, and set BRAIN_DIR to
-<MOUNTED_PATH>. Then read skills/hbrain/SKILL.md, confirm the vault is
-persistent, and respond with `HBrain ready · vault: <MOUNTED_PATH>`.
+Run `npx hbrain install`.
 ```
 
-Replace `<MOUNTED_PATH>` with the path Cowork reports in step 1. Full
-guide + troubleshooting: [INSTALL_COWORK.md](./INSTALL_COWORK.md).
+The installer drops the skill at `~/.claude/skills/hbrain/`, creates
+`~/brain/` as the vault if missing, copies templates, runs the sandbox
+check, and prints `HBrain is ready`. If your Cowork session has your
+local machine connected, `~` is your real home and the vault persists
+across sessions.
+
+Edge cases (no local-machine connector, no npm in sandbox):
+[INSTALL_COWORK.md](./INSTALL_COWORK.md).
 
 A one-click Cowork plugin is coming via Anthropic's community marketplace
 ([HH-618](https://linear.app/hhabibi/issue/HH-618)).
