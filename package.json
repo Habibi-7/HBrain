@@ -1,38 +1,21 @@
 {
   "name": "hbrain",
-  "version": "0.4.2",
-  "description": "Agent-native second brain skill installer",
-  "license": "MIT",
-  "bin": {
-    "hbrain": "bin/hbrain.js"
-  },
-  "files": [
-    "bin/",
-    "skills/",
-    ".claude-plugin/",
-    "commands/",
-    "hooks/",
-    "README.md",
-    "LICENSE"
-  ],
-  "engines": {
-    "node": ">=18"
-  },
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-first activity tracker, habit tracker & life dashboard",
+  "type": "module",
   "scripts": {
-    "test": "node bin/hbrain.js --help"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Habibi-7/hbrain.git"
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "vitest": "^4.1.8"
   },
-  "keywords": [
-    "agent",
-    "skills",
-    "cursor",
-    "codex",
-    "claude",
-    "windsurf",
-    "second-brain",
-    "markdown"
-  ]
+  "license": "MIT",
+  "dependencies": {
+    "lucide": "^1.17.0"
+  }
 }

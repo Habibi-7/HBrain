@@ -1,0 +1,340 @@
+/* Habit and activity heatmap controls */
+
+.habit-heatmap-host,
+.habit-heatmap-bar {
+  flex-shrink: 0;
+  margin-bottom: var(--sp-3);
+}
+
+.habit-queue {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+  min-width: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 2;
+}
+
+.habit-queue-items {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  flex-wrap: wrap;
+  min-width: 0;
+  overflow: visible;
+}
+
+.habit-queue-add {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px dashed var(--glass-border-soft);
+  background: transparent;
+  color: var(--fg-tertiary);
+  cursor: pointer;
+  transition: color 0.18s var(--ease-out), border-color 0.18s var(--ease-out), background 0.18s var(--ease-out);
+}
+
+.habit-queue-add:hover {
+  color: var(--fg-primary);
+  border-color: var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.habit-heatmap-bar {
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border-soft);
+  background: var(--glass-panel-fill);
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+.habit-heatmap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+  min-width: 0;
+}
+
+.habit-heatmap-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.habit-heatmap-name {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--fg-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.habit-heatmap-streak {
+  font-size: var(--text-xs);
+  color: var(--fg-tertiary);
+  flex-shrink: 0;
+}
+
+.heatmap-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+
+.heatmap-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.heatmap-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border-soft);
+  background: var(--track-bg);
+  font: 10px/1 var(--font-sans);
+  color: var(--fg-tertiary);
+  transition: all var(--duration-fast);
+}
+
+.heatmap-pill.is-active {
+  color: var(--fg-primary);
+  border-color: var(--glass-border);
+  background: var(--chrome-surface);
+}
+
+.heatmap-search-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border-soft);
+  background: var(--track-bg);
+  font: 10px/1 var(--font-sans);
+  color: var(--fg-secondary);
+  transition: all var(--duration-fast);
+}
+
+.heatmap-search-btn:hover {
+  border-color: var(--glass-border);
+  background: var(--chrome-surface);
+  color: var(--fg-primary);
+}
+
+.heatmap-search-label { letter-spacing: 0.02em; }
+
+.heatmap-search-kbd,
+.cmdk-kbd {
+  font: 9px/1 var(--font-sans);
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--glass-border-soft);
+  color: var(--fg-muted);
+  background: var(--glass-bg);
+  text-transform: lowercase;
+}
+
+.heatmap-loading,
+.habit-heatmap-empty {
+  font-size: var(--text-sm);
+  color: var(--fg-tertiary);
+  text-align: center;
+  padding: var(--sp-3) 0;
+}
+
+.activity-heat-cell[data-level="0"] { background: var(--heat-0); }
+.activity-heat-cell[data-level="1"] { background: var(--heat-1); }
+.activity-heat-cell[data-level="2"] { background: var(--heat-2); }
+.activity-heat-cell[data-level="3"] { background: var(--heat-3); }
+.activity-heat-cell[data-level="4"] { background: var(--heat-4); }
+
+.habit-chip {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--fg-secondary);
+  cursor: pointer;
+  outline: none;
+  box-shadow: none;
+  transition:
+    background 0.18s var(--ease-out),
+    color 0.18s var(--ease-out),
+    transform 0.18s var(--ease-out),
+    opacity 0.18s var(--ease-out);
+}
+
+.habit-chip:focus,
+.habit-chip:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.habit-chip.is-selected {
+  color: var(--fg-primary);
+}
+
+.habit-chip.is-selected:not(.is-done) {
+  background: color-mix(in srgb, var(--fg-primary) 8%, transparent);
+}
+
+.habit-chip.is-selected .ui-icon {
+  opacity: 1;
+}
+
+.habit-chip.is-done {
+  background: color-mix(in srgb, var(--progress-green) 26%, transparent);
+  color: var(--habit-done);
+}
+
+.habit-chip.is-selected.is-done {
+  background: color-mix(in srgb, var(--progress-green) 32%, transparent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .habit-chip.is-hovered:not(.is-done) {
+    color: var(--fg-primary);
+    transform: translateY(-1px);
+  }
+
+  .habit-chip.is-selected.is-hovered:not(.is-done) {
+    background: color-mix(in srgb, var(--fg-primary) 12%, transparent);
+  }
+
+  .habit-chip.is-done.is-hovered {
+    background: color-mix(in srgb, var(--progress-green) 34%, transparent);
+    color: var(--habit-done);
+    transform: translateY(-1px);
+  }
+
+  .habit-chip.is-selected.is-done.is-hovered {
+    background: color-mix(in srgb, var(--progress-green) 38%, transparent);
+  }
+}
+
+.habit-chip-tooltip {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  bottom: auto;
+  transform: translateX(-50%) translateY(-4px);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  font: 10px/1.2 var(--font-sans);
+  color: var(--fg-primary);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.16s var(--ease-out),
+    transform 0.16s var(--ease-out),
+    visibility 0.16s;
+  transition-delay: 0s;
+  z-index: 30;
+}
+
+.habit-chip.is-hovered .habit-chip-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+  transition-delay: 0.12s;
+}
+
+/* Shared heatmap grid primitives */
+
+.heatmap-wrapper {
+  overflow: hidden;
+  padding-bottom: 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.heatmap-grid {
+  display: inline-grid;
+  grid-template-rows: repeat(7, 1fr);
+  grid-auto-flow: column;
+  gap: 2px;
+  max-width: 100%;
+}
+
+.heatmap-cell {
+  width: clamp(7px, 1.1vh, 10px);
+  height: clamp(7px, 1.1vh, 10px);
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--glass-inset);
+}
+
+.heatmap-cell[data-level="0"] { background: var(--heat-0); }
+.heatmap-cell[data-level="1"] { background: var(--heat-1); }
+.heatmap-cell[data-level="2"] { background: var(--heat-2); }
+.heatmap-cell[data-level="3"] { background: var(--heat-3); }
+.heatmap-cell[data-level="4"] { background: var(--heat-4); }
+
+.heatmap-months,
+.heatmap-days {
+  font: var(--text-xs)/1 var(--font-sans);
+  color: var(--fg-muted);
+}
+
+.heatmap-months { display: flex; gap: 2px; margin-bottom: var(--sp-1); }
+.heatmap-days { display: flex; flex-direction: column; gap: 3px; margin-right: var(--sp-2); }
+
+.habit-heatmap-grid-wrap {
+  overflow: hidden;
+}
+
+.habit-heatmap-grid {
+  max-width: 100%;
+}
+
+.habit-heat-cell[data-level="0"] { background: var(--habit-heat-miss); }
+.habit-heat-cell[data-level="1"] { background: var(--heat-1); }
+.habit-heat-cell[data-level="2"] { background: var(--heat-2); }
+.habit-heat-cell[data-level="3"] { background: var(--heat-3); }
+.habit-heat-cell[data-level="4"] { background: var(--heat-4); }
+
+.heatmap-cell--future {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.heatmap-cell--off {
+  background: color-mix(in srgb, var(--fg-muted) 12%, transparent) !important;
+  box-shadow: none !important;
+  opacity: 0.45;
+  cursor: default;
+}
+
+.habit-heatmap-empty {
+  font-size: var(--text-sm);
+  color: var(--fg-tertiary);
+  text-align: center;
+  padding: var(--sp-2) 0;
+}
