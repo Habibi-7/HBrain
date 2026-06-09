@@ -8,8 +8,10 @@ import { initOceanBackground } from './lib/ocean-bg.js';
 import { initTheme, bindThemeToggle } from './lib/theme.js';
 import { initKeyboard } from './lib/keyboard.js';
 import { initCommandSearch } from './lib/command-search.js';
+import { habitStore } from './lib/habit-store.js';
 
 initTheme();
+const habitStoreReady = habitStore.init();
 
 /** Canvas must stay in the DOM — never wipe body via innerHTML */
 function ensureBgCanvas() {
@@ -71,49 +73,53 @@ if (import.meta.hot) {
   });
 }
 
-const shell = document.createElement('div');
-shell.className = 'app-shell';
-shell.innerHTML = `
-  <div class="app-chrome" id="chrome-container"></div>
-  <main class="main-content" id="main-content"></main>
-`;
-document.body.appendChild(shell);
+function bootApp() {
+  const shell = document.createElement('div');
+  shell.className = 'app-shell';
+  shell.innerHTML = `
+    <div class="app-chrome" id="chrome-container"></div>
+    <main class="main-content" id="main-content"></main>
+  `;
+  document.body.appendChild(shell);
 
-document.getElementById('chrome-container').innerHTML = renderChrome();
-bindNavMenu();
-bindThemeToggle();
+  document.getElementById('chrome-container').innerHTML = renderChrome();
+  bindNavMenu();
+  bindThemeToggle();
 
-const routes = [
-  { path: '/', view: dashboardView },
-  { path: '/timeline', view: timelineView },
-  { path: '/settings', view: settingsView },
-];
+  const routes = [
+    { path: '/', view: dashboardView },
+    { path: '/timeline', view: timelineView },
+    { path: '/settings', view: settingsView },
+  ];
 
-const router = new Router(routes, document.getElementById('main-content'));
+  const router = new Router(routes, document.getElementById('main-content'));
 
-initCommandSearch();
-initKeyboard({
-  navigate: (path) => router.navigate(path),
-  getRoute: () => router.getCurrentPath(),
-});
+  initCommandSearch();
+  initKeyboard({
+    navigate: (path) => router.navigate(path),
+    getRoute: () => router.getCurrentPath(),
+  });
 
-async function checkStatus() {
-  const statusEl = document.getElementById('aw-status');
-  if (!statusEl) return;
-  const connected = await awClient.isConnected();
-  const dot = statusEl.querySelector('.status-dot');
-  const text = statusEl.querySelector('span');
+  async function checkStatus() {
+    const statusEl = document.getElementById('aw-status');
+    if (!statusEl) return;
+    const connected = await awClient.isConnected();
+    const dot = statusEl.querySelector('.status-dot');
+    const text = statusEl.querySelector('span');
 
-  if (connected) {
-    dot.className = 'status-dot';
-    text.textContent = 'AW Connected';
-    text.className = 'fg-primary text-xs';
-  } else {
-    dot.className = 'status-dot offline';
-    text.textContent = 'AW Offline';
-    text.className = 'fg-tertiary text-xs';
+    if (connected) {
+      dot.className = 'status-dot';
+      text.textContent = 'AW Connected';
+      text.className = 'fg-primary text-xs';
+    } else {
+      dot.className = 'status-dot offline';
+      text.textContent = 'AW Offline';
+      text.className = 'fg-tertiary text-xs';
+    }
   }
+
+  checkStatus();
+  setInterval(checkStatus, 10000);
 }
 
-checkStatus();
-setInterval(checkStatus, 10000);
+habitStoreReady.finally(bootApp);

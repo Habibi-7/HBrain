@@ -3,6 +3,7 @@
  */
 import { awClient } from '../lib/aw-client.js';
 import { categoryManager } from '../lib/categories.js';
+import { habitStore } from '../lib/habit-store.js';
 import { getThemeMode, setThemeMode, THEME_MODES, getThemeLabel } from '../lib/theme.js';
 import { iconHtml } from '../lib/icons.js';
 import { escapeHtml, escapeAttr } from '../lib/html.js';
@@ -58,7 +59,7 @@ export function settingsView() {
             <button class="btn btn-secondary text-sm" id="export-data">Export</button>
             <button class="btn btn-ghost text-sm" id="clear-data" style="color:var(--cat-media);">Reset</button>
           </div>
-          <p class="text-xs fg-muted" style="margin-top:var(--sp-2);">v1.0.0 · MIT</p>
+          <p class="text-xs fg-muted" style="margin-top:var(--sp-2);">Habit storage: ${escapeHtml(habitStore.getStorageMode())} · v1.0.0 · MIT</p>
         </div>
 
         <div class="card">
@@ -137,8 +138,7 @@ export function settingsView() {
 
     el.querySelector('#export-data')?.addEventListener('click', () => {
       const data = {
-        habits: JSON.parse(localStorage.getItem('hbrain_habits') || '[]'),
-        entries: JSON.parse(localStorage.getItem('hbrain_habit_entries') || '[]'),
+        ...habitStore.exportData(),
         categories: JSON.parse(localStorage.getItem('hbrain_categories') || '[]'),
         exportedAt: new Date().toISOString(),
       };
@@ -151,10 +151,9 @@ export function settingsView() {
       URL.revokeObjectURL(url);
     });
 
-    el.querySelector('#clear-data')?.addEventListener('click', () => {
+    el.querySelector('#clear-data')?.addEventListener('click', async () => {
       if (confirm('This will delete all habit data. Are you sure?')) {
-        localStorage.removeItem('hbrain_habits');
-        localStorage.removeItem('hbrain_habit_entries');
+        await habitStore.resetData();
         localStorage.removeItem('hbrain_categories');
         render();
       }

@@ -82,7 +82,7 @@ function openShortcuts() {
 }
 
 function handleHabitNav(delta) {
-  const habits = habitStore.getHabits();
+  const habits = habitStore.getScheduledHabits();
   if (!habits.length) return;
   const id = moveHabitFocus(delta, habits);
   document.querySelectorAll('.habit-chip.is-hovered').forEach((chip) => {
@@ -92,7 +92,7 @@ function handleHabitNav(delta) {
 }
 
 function toggleFocusedHabit() {
-  const habits = habitStore.getHabits();
+  const habits = habitStore.getScheduledHabits();
   const id = getSelectedHabitId(habits);
   if (!id) return;
   invokeViewAction('habitToggle', id);

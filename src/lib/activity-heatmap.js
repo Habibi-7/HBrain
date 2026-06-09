@@ -88,9 +88,13 @@ function renderHabitChips(habits, filter) {
 }
 
 function renderHabitQueue(habits, filter) {
+  const emptyNote = habits.length
+    ? ''
+    : '<span class="habit-queue-empty">Rest day</span>';
+
   return `
-    <div class="habit-queue" role="toolbar" aria-label="Habits">
-      <div class="habit-queue-items">${renderAllHabitsChip(filter)}${habits.length ? renderHabitChips(habits, filter) : ''}</div>
+    <div class="habit-queue" role="toolbar" aria-label="Today's habits">
+      <div class="habit-queue-items">${renderAllHabitsChip(filter)}${habits.length ? renderHabitChips(habits, filter) : emptyNote}</div>
       <button type="button" class="habit-queue-add" id="habit-add-btn" aria-label="Add habit">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
@@ -98,7 +102,7 @@ function renderHabitQueue(habits, filter) {
 }
 
 function renderHeatmapInner(view, filter) {
-  const habits = habitStore.getHabits();
+  const habits = habitStore.getScheduledHabits();
 
   return `
     ${renderHabitQueue(habits, filter)}
@@ -155,7 +159,7 @@ function bindHabitChips(container, handlers = {}) {
       if (clickTimer) clearTimeout(clickTimer);
       clickTimer = setTimeout(() => {
         const filter = getHeatmapFilter();
-        const habits = habitStore.getHabits();
+        const habits = habitStore.getScheduledHabits();
 
         if (chip.dataset.habitScope === 'all') {
           if (filter.type !== FILTER_TYPES.HABITS_ALL) {
@@ -193,14 +197,6 @@ function bindHabitChips(container, handlers = {}) {
         }
         clickTimer = null;
       }, 200);
-    });
-    chip.addEventListener('dblclick', (event) => {
-      event.preventDefault();
-      if (clickTimer) {
-        clearTimeout(clickTimer);
-        clickTimer = null;
-      }
-      handlers.onDelete?.(chip.dataset.habitId, chip);
     });
   });
 

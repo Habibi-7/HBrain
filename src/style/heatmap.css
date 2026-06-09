@@ -27,6 +27,12 @@
   overflow: visible;
 }
 
+.habit-queue-empty {
+  font: var(--text-xs)/1 var(--font-sans);
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+}
+
 .habit-queue-add {
   flex-shrink: 0;
   width: 30px;
