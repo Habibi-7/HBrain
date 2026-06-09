@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { createHabitRepository } from './habit-repository.js';
 
 function tempDbPath() {
-  return join(tmpdir(), `hbrain-test-${Date.now()}-${Math.random().toString(16).slice(2)}.sqlite`);
+  return join(tmpdir(), `hvis-test-${Date.now()}-${Math.random().toString(16).slice(2)}.sqlite`);
 }
 
 describe('habit repository', () => {

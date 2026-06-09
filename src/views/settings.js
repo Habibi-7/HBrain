@@ -2,7 +2,7 @@
  * Settings view — AW connection, category editor
  */
 import { awClient } from '../lib/aw-client.js';
-import { categoryManager } from '../lib/categories.js';
+import { categoryManager, CATEGORIES_KEY } from '../lib/categories.js';
 import { habitStore } from '../lib/habit-store.js';
 import { getThemeMode, setThemeMode, THEME_MODES, getThemeLabel } from '../lib/theme.js';
 import { iconHtml } from '../lib/icons.js';
@@ -98,7 +98,7 @@ export function settingsView() {
             <span class="card-title">About</span>
           </div>
           <p class="text-sm fg-secondary">
-            <strong>HBrain</strong> — local-first activity dashboard. All data stays on your machine.
+            <strong>Hvis</strong> — local-first activity dashboard. All data stays on your machine.
           </p>
         </div>
 
@@ -139,14 +139,14 @@ export function settingsView() {
     el.querySelector('#export-data')?.addEventListener('click', () => {
       const data = {
         ...habitStore.exportData(),
-        categories: JSON.parse(localStorage.getItem('hbrain_categories') || '[]'),
+        categories: JSON.parse(localStorage.getItem(CATEGORIES_KEY) || '[]'),
         exportedAt: new Date().toISOString(),
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `hbrain-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `hvis-export-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -154,7 +154,7 @@ export function settingsView() {
     el.querySelector('#clear-data')?.addEventListener('click', async () => {
       if (confirm('This will delete all habit data. Are you sure?')) {
         await habitStore.resetData();
-        localStorage.removeItem('hbrain_categories');
+        localStorage.removeItem(CATEGORIES_KEY);
         render();
       }
     });

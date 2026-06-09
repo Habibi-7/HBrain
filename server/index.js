@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { mkdirSync } from 'node:fs';
+import { existsSync, copyFileSync, mkdirSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,10 +8,18 @@ import { createHabitRepository } from './habit-repository.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = dirname(__dirname);
 const dataDir = join(rootDir, 'data');
-const dbPath = process.env.HBRAIN_DB_PATH || join(dataDir, 'hbrain.sqlite');
-const port = Number(process.env.HBRAIN_API_PORT || 3100);
+const defaultDbPath = join(dataDir, 'hvis.sqlite');
+const legacyDbPath = join(dataDir, 'hbrain.sqlite');
+const dbPath = process.env.HVIS_DB_PATH
+  || process.env.HBRAIN_DB_PATH
+  || defaultDbPath;
+const port = Number(process.env.HVIS_API_PORT || process.env.HBRAIN_API_PORT || 3100);
 
 mkdirSync(dataDir, { recursive: true });
+
+if (dbPath === defaultDbPath && !existsSync(defaultDbPath) && existsSync(legacyDbPath)) {
+  copyFileSync(legacyDbPath, defaultDbPath);
+}
 
 const db = new Database(dbPath);
 const repo = createHabitRepository(db);
@@ -108,6 +116,6 @@ async function handle(req, res) {
 }
 
 createServer(handle).listen(port, '127.0.0.1', () => {
-  console.log(`HBrain API listening on http://127.0.0.1:${port}`);
+  console.log(`Hvis API listening on http://127.0.0.1:${port}`);
   console.log(`SQLite database: ${dbPath}`);
 });

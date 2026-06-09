@@ -13,12 +13,12 @@ import {
   normalizeSchedule,
 } from './habit-schedule.js';
 
-const HABITS_KEY = 'hbrain_habits';
-const ENTRIES_KEY = 'hbrain_habit_entries';
-const HABIT_ICONS_KEY = 'hbrain_habit_icons_v1';
-const HABIT_SCHEDULE_KEY = 'hbrain_habit_schedule_v1';
-const HABITS_PRESET_KEY = 'hbrain_habits_preset_v1';
-const LEGACY_BACKUP_KEY = 'hbrain_habits_backup';
+const HABITS_KEY = 'hvis_habits';
+const ENTRIES_KEY = 'hvis_habit_entries';
+const HABIT_ICONS_KEY = 'hvis_habit_icons_v1';
+const HABIT_SCHEDULE_KEY = 'hvis_habit_schedule_v1';
+const HABITS_PRESET_KEY = 'hvis_habits_preset_v1';
+const LEGACY_BACKUP_KEY = 'hvis_habits_backup';
 
 class HabitStore {
   constructor() {
@@ -51,7 +51,7 @@ class HabitStore {
       this._applyState(state);
       this._storage = 'sqlite';
     } catch (err) {
-      console.warn('HBrain SQLite API unavailable, falling back to localStorage.', err);
+      console.warn('Hvis SQLite API unavailable, falling back to localStorage.', err);
       this._initLocal();
       this._storage = 'localStorage';
     }

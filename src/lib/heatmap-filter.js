@@ -2,8 +2,8 @@
  * Heatmap filter state — habits, apps, sites, categories, active time.
  */
 
-const FILTER_KEY = 'hbrain_heatmap_filter';
-const RECENT_KEY = 'hbrain_heatmap_recent';
+const FILTER_KEY = 'hvis_heatmap_filter';
+const RECENT_KEY = 'hvis_heatmap_recent';
 const MAX_RECENT = 6;
 
 export const FILTER_TYPES = {

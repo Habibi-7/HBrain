@@ -24,9 +24,9 @@ function matchRule(rule, appName, title) {
   return false;
 }
 
-const CATEGORIES_KEY = 'hbrain_categories';
-const CATEGORY_COLORS_KEY = 'hbrain_category_colors_v5';
-const CATEGORY_ICONS_KEY = 'hbrain_category_icons_v1';
+export const CATEGORIES_KEY = 'hvis_categories';
+const CATEGORY_COLORS_KEY = 'hvis_category_colors_v5';
+const CATEGORY_ICONS_KEY = 'hvis_category_icons_v1';
 
 const CATEGORY_ICONS = {
   Coding: 'code',
@@ -179,11 +179,11 @@ class CategoryManager {
   }
 
   _migrateOtherRed() {
-    if (localStorage.getItem('hbrain_category_other_red_v1')) return;
+    if (localStorage.getItem('hvis_category_other_red_v1')) return;
     for (const cat of this._categories) {
       if (cat.name === 'Other') cat.color = CATEGORY_COLORS.Other;
     }
-    localStorage.setItem('hbrain_category_other_red_v1', '1');
+    localStorage.setItem('hvis_category_other_red_v1', '1');
     this._save();
   }
 
@@ -198,7 +198,7 @@ class CategoryManager {
   }
 
   _migrateConductorRule() {
-    if (localStorage.getItem('hbrain_category_conductor_v1')) return;
+    if (localStorage.getItem('hvis_category_conductor_v1')) return;
     const coding = this._categories.find((cat) => cat.name === 'Coding');
     if (coding && !coding.rules.some((r) => r.match === 'Conductor')) {
       const cursorIdx = coding.rules.findIndex((r) => r.match === 'Cursor');
@@ -207,7 +207,7 @@ class CategoryManager {
       else coding.rules.push(rule);
       this._save();
     }
-    localStorage.setItem('hbrain_category_conductor_v1', '1');
+    localStorage.setItem('hvis_category_conductor_v1', '1');
   }
 
   /** Categorize an app event */

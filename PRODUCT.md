@@ -6,11 +6,11 @@ product
 
 ## Users
 
-HBrain is for a single local-first power user who wants a trustworthy daily view of how time is spent across apps, websites, and habits. The user is usually checking it during or after a work session, with the goal of changing behavior rather than admiring analytics.
+Hvis is for a single local-first power user who wants a trustworthy daily view of how time is spent across apps, websites, and habits. The user is usually checking it during or after a work session, with the goal of changing behavior rather than admiring analytics.
 
 ## Product Purpose
 
-HBrain exists to turn local activity data into a calm behavior-change dashboard. It should make the day understandable at a glance, reveal patterns that matter, and support small corrective actions through habits, categories, and later integrations. Success means the user can quickly answer what pulled their attention, what supported their goals, and what to do next.
+Hvis exists to turn local activity data into a calm behavior-change dashboard. It should make the day understandable at a glance, reveal patterns that matter, and support small corrective actions through habits, categories, and later integrations. Success means the user can quickly answer what pulled their attention, what supported their goals, and what to do next.
 
 ## Brand Personality
 

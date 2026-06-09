@@ -2,7 +2,7 @@
  * Theme mode: auto (system), night (dark ocean), day (sunny ocean)
  */
 
-export const THEME_STORAGE_KEY = 'hbrain-theme-mode';
+export const THEME_STORAGE_KEY = 'hvis-theme-mode';
 export const THEME_MODES = ['auto', 'night', 'day'];
 
 const THEME_LABELS = { auto: 'AUTO', night: 'DARK', day: 'LIGHT' };

@@ -8,9 +8,11 @@ import { initOceanBackground } from './lib/ocean-bg.js';
 import { initTheme, bindThemeToggle } from './lib/theme.js';
 import { initKeyboard } from './lib/keyboard.js';
 import { initCommandSearch } from './lib/command-search.js';
+import { migrateHBrainStorageKeys } from './lib/storage-migrate.js';
 import { habitStore } from './lib/habit-store.js';
 
 initTheme();
+migrateHBrainStorageKeys();
 const habitStoreReady = habitStore.init();
 
 /** Canvas must stay in the DOM — never wipe body via innerHTML */
