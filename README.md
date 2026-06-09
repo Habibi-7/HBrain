@@ -1,33 +1,32 @@
 # Hvis
 
-A local-first activity tracker, habit tracker, and life dashboard. 
-Inspired by ActivityWatch, but with a unified, beautiful UI and manual habit tracking.
+Local-first dashboard for **where your time went** (ActivityWatch) and **what you did** (habits). All data stays on your machine.
 
-## Getting Started
+## Setup
 
-1. Install [ActivityWatch](https://activitywatch.net/) and ensure it is running in the background (port 5600).
-2. Clone this repository.
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-4. Start the local SQLite API and web app:
-   ```bash
-   npm run dev
-   ```
+**1. Install [ActivityWatch](https://activitywatch.net/)**. It tracks apps and sites in the background. Keep it running (default port `5600`). Hvis reads this for screen-time heatmaps and focus stats.
 
-Habit data is stored locally in `data/hvis.sqlite` through the bundled API on `127.0.0.1:3100`.
-The `data/` directory is ignored by git, so personal habit data is not committed.
+**2. Install Hvis**
 
-## Features
-- **Dashboard:** Today's active time, category breakdown, top apps, and habits.
-- **Activity:** GitHub-style 6-month contribution heatmap of your screen time.
-- **Habits:** Manual habit tracking with streak counters and mini heatmaps.
-- **Privacy First:** 100% local. AW data stays in its local SQLite DB, habits stay in `data/hvis.sqlite`.
+```bash
+git clone https://github.com/Habibi-7/hvis.git
+cd hvis
+npm install
+```
 
-## Phase 2 Roadmap
-- Linear integration (track time spent vs tasks completed)
-- Obsidian integration (interactive graph view of notes)
+**3. Start the app**
 
-## License
+```bash
+npm run dev
+```
+
+This starts the habits API (`127.0.0.1:3100`) and the web UI. Open **[http://localhost:3000](http://localhost:3000)**.
+
+
+| Data        | Where it lives                  |
+| ----------- | ------------------------------- |
+| Habits      | `data/hvis.sqlite` (gitignored) |
+| Screen time | ActivityWatch's local DB        |
+
+
 MIT
