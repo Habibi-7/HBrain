@@ -5,17 +5,21 @@
   "description": "Local-first activity tracker, habit tracker & life dashboard",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -k -n api,web \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node server/index.js",
+    "dev:web": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run"
   },
   "devDependencies": {
+    "concurrently": "^10.0.3",
     "vite": "^6.0.0",
     "vitest": "^4.1.8"
   },
   "license": "MIT",
   "dependencies": {
+    "better-sqlite3": "^12.10.0",
     "lucide": "^1.17.0"
   }
 }

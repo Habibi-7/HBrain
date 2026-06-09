@@ -144,15 +144,6 @@
   gap: var(--sp-4);
 }
 
-.compound-growth-kicker {
-  display: block;
-  margin-bottom: var(--sp-1);
-  font: 10px/1 var(--font-sans);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg-tertiary);
-}
-
 .compound-growth-title {
   font: clamp(1.35rem, 2vw, 1.75rem)/1.05 var(--font-sans);
   font-weight: 500;
@@ -285,7 +276,8 @@ body.theme-day .compound-growth-svg {
 
 .compound-growth-chart-legend {
   display: flex;
-  gap: var(--sp-4);
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-4);
   font: 10px/1 var(--font-sans);
   color: var(--fg-muted);
 }
@@ -312,12 +304,41 @@ body.theme-day .compound-growth-svg {
   border-top: 1px dashed currentColor;
 }
 
+.compound-legend-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 999px;
+  background: var(--progress-green);
+  box-shadow: 0 0 6px rgba(134, 201, 174, 0.45);
+}
+
+.compound-growth-perfect-dot {
+  fill: var(--progress-green);
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 1;
+}
+
+body.theme-day .compound-growth-perfect-dot {
+  stroke: rgba(15, 23, 40, 0.15);
+}
+
 .compound-growth-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--sp-3);
   padding-top: var(--sp-2);
   border-top: 1px solid var(--glass-border-soft);
+}
+
+.compound-growth-footnote {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--fg-tertiary);
+  font-style: italic;
 }
 
 .compound-stat-label {

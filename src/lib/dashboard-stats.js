@@ -17,11 +17,13 @@ export function loadHabitsStats(rootEl) {
   const totalEl = rootEl.querySelector('#habits-total');
   if (!doneEl || !totalEl) return;
 
-  const habits = habitStore.getHabits();
+  const habits = habitStore.getScheduledHabits();
   const today = new Date().toISOString().slice(0, 10);
   const completedCount = habits.filter((h) => habitStore.isCompleted(h.id, today)).length;
-  doneEl.textContent = `${completedCount}/${habits.length}`;
-  totalEl.textContent = `${habits.length} tracked`;
+  doneEl.textContent = habits.length ? `${completedCount}/${habits.length}` : '—';
+  totalEl.textContent = habits.length
+    ? `${habits.length} due today`
+    : 'Rest day';
 }
 
 export function renderTopApps(rootEl, titles) {

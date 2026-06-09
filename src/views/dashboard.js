@@ -7,7 +7,7 @@ import { mountCompoundGrowth } from '../lib/compound-growth.js';
 import { setFocusIndex, getSelectedHabitId } from '../lib/habit-focus.js';
 import { onHeatmapFilterChange, setHeatmapFilter, FILTER_TYPES } from '../lib/heatmap-filter.js';
 import { registerViewActions, clearViewActions } from '../lib/view-actions.js';
-import { openAddHabitModal } from '../lib/add-habit-modal.js';
+import { openHabitManagerModal } from '../lib/habit-manager-modal.js';
 import { loadDashboardStats, loadHabitsStats } from '../lib/dashboard-stats.js';
 
 export function dashboardView() {
@@ -18,17 +18,9 @@ export function dashboardView() {
 
   const heatmapHandlers = {
     onToggle: (habitId, index) => {
-      const habits = habitStore.getHabits();
+      const habits = habitStore.getScheduledHabits();
       setFocusIndex(index, habits);
       toggleHabit(habitId);
-    },
-    onDelete: (habitId, chip) => {
-      const name = chip.getAttribute('aria-label')?.replace(' (completed today)', '') || '';
-      if (confirm(`Remove "${name}"?`)) {
-        habitStore.removeHabit(habitId);
-        renderHeatmap();
-        refreshGrowthSignals();
-      }
     },
     onAddHabit: () => openAddModal(),
     onFilterChange: () => renderHeatmap(),
@@ -47,14 +39,14 @@ export function dashboardView() {
     loadHabitsStats(el);
   }
 
-  function toggleHabit(habitId) {
-    habitStore.toggleHabit(habitId);
+  async function toggleHabit(habitId) {
+    await habitStore.toggleHabit(habitId);
     renderHeatmap();
     refreshGrowthSignals();
   }
 
   function openAddModal() {
-    openAddHabitModal({
+    openHabitManagerModal({
       onSave: () => {
         renderHeatmap();
         refreshGrowthSignals();
@@ -63,7 +55,7 @@ export function dashboardView() {
   }
 
   function focusSelectedHabit() {
-    const habits = habitStore.getHabits();
+    const habits = habitStore.getScheduledHabits();
     const id = getSelectedHabitId(habits);
     const habit = habits.find((h) => h.id === id);
     if (habit) {
@@ -78,7 +70,7 @@ export function dashboardView() {
   }
 
   function toggleFocusedHabit() {
-    const id = getSelectedHabitId(habitStore.getHabits());
+    const id = getSelectedHabitId(habitStore.getScheduledHabits());
     if (id) toggleHabit(id);
   }
 
