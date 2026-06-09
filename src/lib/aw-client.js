@@ -3,12 +3,23 @@
  * Talks to aw-server-rust at localhost:5600
  */
 
+import {
+  appDurationQuery,
+  categoryDurationQuery,
+  notAfkDurationQuery,
+  timelineEventsQuery,
+  titleDurationQuery,
+  windowActivityQuery,
+} from './aw-query.js';
+
 const AW_BASE = '/api/0';
 
 class AWClient {
   constructor(baseUrl = AW_BASE) {
     this.base = baseUrl;
     this._info = null;
+    this._buckets = null;
+    this._hostname = null;
   }
 
   async _fetch(path, opts = {}) {
@@ -39,7 +50,8 @@ class AWClient {
 
   /** List all buckets */
   async getBuckets() {
-    return this._fetch('/buckets/');
+    if (!this._buckets) this._buckets = await this._fetch('/buckets/');
+    return this._buckets;
   }
 
   /** Get events from a bucket */
@@ -61,17 +73,34 @@ class AWClient {
 
   /** Find hostname from available buckets */
   async getHostname() {
+    if (this._hostname !== null) return this._hostname;
     const buckets = await this.getBuckets();
     for (const [id] of Object.entries(buckets)) {
       const match = id.match(/aw-watcher-window_(.+)/);
-      if (match) return match[1];
+      if (match) {
+        this._hostname = match[1];
+        return this._hostname;
+      }
     }
     // Try afk bucket
     for (const [id] of Object.entries(buckets)) {
       const match = id.match(/aw-watcher-afk_(.+)/);
-      if (match) return match[1];
+      if (match) {
+        this._hostname = match[1];
+        return this._hostname;
+      }
     }
+    this._hostname = null;
     return null;
+  }
+
+  async getActivityBuckets() {
+    const hostname = await this.getHostname();
+    if (!hostname) return null;
+    return {
+      windowBucket: `aw-watcher-window_${hostname}`,
+      afkBucket: `aw-watcher-afk_${hostname}`,
+    };
   }
 
   /** Get window events for a time range, merged and categorized */
@@ -79,27 +108,12 @@ class AWClient {
     const hostname = await this.getHostname();
     if (!hostname) return { apps: [], titles: [], duration: 0, events: [] };
 
-    const bidWindow = `aw-watcher-window_${hostname}`;
-    const bidAfk = `aw-watcher-afk_${hostname}`;
+    const buckets = {
+      windowBucket: `aw-watcher-window_${hostname}`,
+      afkBucket: `aw-watcher-afk_${hostname}`,
+    };
     const tp = [`${start}/${end}`];
-
-    const catStr = categories.length > 0
-      ? JSON.stringify(categories).replace(/\\\\/g, '\\')
-      : '[]';
-
-    const q = [
-      `events = flood(query_bucket("${bidWindow}"));`,
-      `not_afk = flood(query_bucket("${bidAfk}"));`,
-      `not_afk = filter_keyvals(not_afk, "status", ["not-afk"]);`,
-      `events = filter_period_intersect(events, not_afk);`,
-      categories.length > 0 ? `events = categorize(events, ${catStr});` : '',
-      `title_events = sort_by_duration(merge_events_by_keys(events, ["app", "title"]));`,
-      `app_events = sort_by_duration(merge_events_by_keys(title_events, ["app"]));`,
-      `app_events = limit_events(app_events, 20);`,
-      `title_events = limit_events(title_events, 30);`,
-      `duration = sum_durations(events);`,
-      `RETURN = {"app_events": app_events, "title_events": title_events, "duration": duration, "active_events": not_afk};`,
-    ].filter(Boolean);
+    const q = windowActivityQuery({ ...buckets, categories });
 
     try {
       const data = await this.query(tp, q);
@@ -120,18 +134,11 @@ class AWClient {
     const hostname = await this.getHostname();
     if (!hostname) return [];
 
-    const bidWindow = `aw-watcher-window_${hostname}`;
-    const bidAfk = `aw-watcher-afk_${hostname}`;
     const tp = [`${start}/${end}`];
-
-    const q = [
-      `events = flood(query_bucket("${bidWindow}"));`,
-      `not_afk = flood(query_bucket("${bidAfk}"));`,
-      `not_afk = filter_keyvals(not_afk, "status", ["not-afk"]);`,
-      `events = filter_period_intersect(events, not_afk);`,
-      `events = sort_by_timestamp(events);`,
-      `RETURN = events;`,
-    ];
+    const q = timelineEventsQuery({
+      windowBucket: `aw-watcher-window_${hostname}`,
+      afkBucket: `aw-watcher-afk_${hostname}`,
+    });
 
     try {
       const data = await this.query(tp, q);
@@ -143,72 +150,34 @@ class AWClient {
 
   /** Get total active (non-AFK) durations per day for the last N days */
   async getDailyActivity(days = 365) {
-    return this._getDailyDurations(days, (bidWindow, bidAfk) => [
-      `not_afk = flood(query_bucket("${bidAfk}"));`,
-      `not_afk = filter_keyvals(not_afk, "status", ["not-afk"]);`,
-      `RETURN = sum_durations(not_afk);`,
-    ]);
+    return this._getDailyDurations(days, ({ afkBucket }) => notAfkDurationQuery({ afkBucket }));
   }
 
   /** Daily active seconds filtered to a specific app */
   async getDailyAppActivity(appName, days = 140) {
-    const escaped = appName.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    return this._getDailyDurations(days, (bidWindow, bidAfk) => [
-      `events = flood(query_bucket("${bidWindow}"));`,
-      `not_afk = flood(query_bucket("${bidAfk}"));`,
-      `not_afk = filter_keyvals(not_afk, "status", ["not-afk"]);`,
-      `events = filter_period_intersect(events, not_afk);`,
-      `events = filter_keyvals(events, "app", ["${escaped}"]);`,
-      `RETURN = sum_durations(events);`,
-    ]);
+    return this._getDailyDurations(days, ({ windowBucket, afkBucket }) => (
+      appDurationQuery({ windowBucket, afkBucket, appName })
+    ));
   }
 
   /** Daily active seconds filtered to app + window title */
   async getDailyTitleActivity(appName, title, days = 140) {
-    const escapedApp = appName.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    const escapedTitle = title.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    return this._getDailyDurations(days, (bidWindow, bidAfk) => [
-      `events = flood(query_bucket("${bidWindow}"));`,
-      `not_afk = flood(query_bucket("${bidAfk}"));`,
-      `not_afk = filter_keyvals(not_afk, "status", ["not-afk"]);`,
-      `events = filter_period_intersect(events, not_afk);`,
-      `events = filter_keyvals(events, "app", ["${escapedApp}"]);`,
-      `events = filter_keyvals(events, "title", ["${escapedTitle}"]);`,
-      `RETURN = sum_durations(events);`,
-    ]);
+    return this._getDailyDurations(days, ({ windowBucket, afkBucket }) => (
+      titleDurationQuery({ windowBucket, afkBucket, appName, title })
+    ));
   }
 
   /** Daily active seconds for a category (uses AW categorize) */
   async getDailyCategoryActivity(categoryName, categories, days = 140) {
-    const catJson = JSON.stringify(this._toAWCategories(categories)).replace(/\\\\/g, '\\');
-    const escaped = categoryName.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-    return this._getDailyDurations(days, (bidWindow, bidAfk) => [
-      `events = flood(query_bucket("${bidWindow}"));`,
-      `not_afk = flood(query_bucket("${bidAfk}"));`,
-      `not_afk = filter_keyvals(not_afk, "status", ["not-afk"]);`,
-      `events = filter_period_intersect(events, not_afk);`,
-      `events = categorize(events, ${catJson});`,
-      `events = filter_keyvals(events, "$category", ["${escaped}"]);`,
-      `RETURN = sum_durations(events);`,
-    ]);
-  }
-
-  _toAWCategories(categories) {
-    return categories.map((cat) => {
-      const parts = cat.rules.map((r) => {
-        const match = r.match.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        return r.type === 'title' ? `title:${match}` : match;
-      });
-      return [cat.name, { type: 'regex', regex: parts.join('|'), ignoreCase: true }];
-    });
+    return this._getDailyDurations(days, ({ windowBucket, afkBucket }) => (
+      categoryDurationQuery({ windowBucket, afkBucket, categoryName, categories })
+    ));
   }
 
   async _getDailyDurations(days, buildQuery) {
-    const hostname = await this.getHostname();
-    if (!hostname) return {};
+    const buckets = await this.getActivityBuckets();
+    if (!buckets) return {};
 
-    const bidWindow = `aw-watcher-window_${hostname}`;
-    const bidAfk = `aw-watcher-afk_${hostname}`;
     const result = {};
     const now = new Date();
     const batchSize = 7;
@@ -224,7 +193,7 @@ class AWClient {
         periods.push(`${dayStart.toISOString()}/${dayEnd.toISOString()}`);
       }
 
-      const q = buildQuery(bidWindow, bidAfk);
+      const q = buildQuery(buckets);
 
       try {
         const data = await this.query(periods, q);

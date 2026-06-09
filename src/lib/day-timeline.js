@@ -5,6 +5,7 @@ import { categoryManager } from './categories.js';
 import { formatActivityLabel } from './activity-label.js';
 import { formatDuration, timeStr, startOfDay, endOfDay } from './time-utils.js';
 import { iconHtml } from './icons.js';
+import { escapeHtml } from './html.js';
 
 const MAX_ROWS = 12;
 const MERGE_GAP_MS = 90 * 1000;
@@ -15,15 +16,6 @@ export const ZOOM_LEVELS = [
   { id: '3h', label: '3h', hours: 3 },
   { id: '1h', label: '1h', hours: 1 },
 ];
-
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
 
 function eventRange(event) {
   const start = new Date(event.timestamp).getTime();

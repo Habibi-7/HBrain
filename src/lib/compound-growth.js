@@ -4,6 +4,7 @@
  */
 import { awClient } from './aw-client.js';
 import { habitStore } from './habit-store.js';
+import { escapeHtml } from './html.js';
 
 const DAYS = 30;
 const HABIT_WEIGHT = 0.58;
@@ -184,8 +185,8 @@ export function renderCompoundGrowth(container, data) {
       <header class="compound-growth-head">
         <div>
           <span class="compound-growth-kicker">The long game</span>
-          <h2 class="compound-growth-title">${label}</h2>
-          <p class="compound-growth-tagline">${tagline}</p>
+          <h2 class="compound-growth-title">${escapeHtml(label)}</h2>
+          <p class="compound-growth-tagline">${escapeHtml(tagline)}</p>
         </div>
         <div class="compound-growth-score mono" aria-label="Compound score ${score}">${score}</div>
       </header>

@@ -47,7 +47,6 @@ export function setHeatmapFilter(filter) {
   persistFilter();
   addRecentFilter(currentFilter);
   listeners.forEach((fn) => fn(currentFilter));
-  window.dispatchEvent(new CustomEvent('heatmap:filter', { detail: currentFilter }));
 }
 
 export function onHeatmapFilterChange(fn) {

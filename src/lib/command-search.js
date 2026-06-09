@@ -5,6 +5,7 @@
 import { buildSearchIndex, searchIndex, itemToFilter } from './search-index.js';
 import { getRecentFilters, setHeatmapFilter } from './heatmap-filter.js';
 import { iconHtml } from './icons.js';
+import { escapeAttr, escapeHtml } from './html.js';
 
 let isOpen = false;
 let activeIndex = 0;
@@ -20,10 +21,6 @@ const GROUP_LABELS = {
   category: 'Categories',
 };
 
-function escapeAttr(value) {
-  return String(value).replace(/"/g, '&quot;');
-}
-
 function groupResults(results, query, recent) {
   if (!query && recent.length) {
     return [{ id: 'recent', label: GROUP_LABELS.recent, items: recent.map((f) => ({
@@ -34,7 +31,7 @@ function groupResults(results, query, recent) {
       icon: f.icon,
       app: f.app,
       title: f.title,
-      highlight: f.label,
+      highlight: escapeHtml(f.label),
     })) }];
   }
 
@@ -54,7 +51,7 @@ function renderResults(groups, query) {
     return `<div class="cmdk-empty">Start typing to filter activity…</div>`;
   }
   if (query && !groups.some((g) => g.items.length)) {
-    return `<div class="cmdk-empty">No results for "<strong>${escapeAttr(query)}</strong>"</div>`;
+    return `<div class="cmdk-empty">No results for "<strong>${escapeHtml(query)}</strong>"</div>`;
   }
 
   let idx = 0;
@@ -63,12 +60,14 @@ function renderResults(groups, query) {
     const items = group.items.map((item) => {
       const i = idx++;
       const active = i === activeIndex ? ' is-active' : '';
+      const label = item.highlight || escapeHtml(item.label);
+      const suffix = item.suffix ? escapeHtml(item.suffix) : '';
       return `
         <button type="button" class="cmdk-item${active}" data-index="${i}" data-type="${item.type}" data-id="${escapeAttr(item.id)}">
           <span class="cmdk-item-icon">${iconHtml(item.icon || 'activity', { size: 14 })}</span>
           <span class="cmdk-item-body">
-            <span class="cmdk-item-label">${item.highlight || item.label}</span>
-            <span class="cmdk-item-suffix">${item.suffix || ''}</span>
+            <span class="cmdk-item-label">${label}</span>
+            <span class="cmdk-item-suffix">${suffix}</span>
           </span>
         </button>`;
     }).join('');
@@ -95,7 +94,7 @@ async function updateResults(modal, query) {
   const recent = !query ? getRecentFilters().slice(0, 5).map((f) => ({
     ...f,
     suffix: f.type === 'title' ? (f.app || 'Site') : (f.type === 'category' ? 'Category' : f.type === 'habit' ? 'Habit' : f.type === 'app' ? 'App' : 'Overview'),
-    highlight: f.label,
+    highlight: escapeHtml(f.label),
   })) : [];
 
   const groups = groupResults(results, query, recent);

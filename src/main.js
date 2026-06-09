@@ -86,8 +86,6 @@ bindThemeToggle();
 const routes = [
   { path: '/', view: dashboardView },
   { path: '/timeline', view: timelineView },
-  { path: '/activity', view: timelineView },
-  { path: '/habits', view: dashboardView },
   { path: '/settings', view: settingsView },
 ];
 
@@ -97,15 +95,6 @@ initCommandSearch();
 initKeyboard({
   navigate: (path) => router.navigate(path),
   getRoute: () => router.getCurrentPath(),
-  onHabitFocus: () => {
-    router.currentView?.onHabitFocus?.();
-  },
-  onHabitToggled: () => {
-    router.currentView?.onHabitToggle?.();
-  },
-  onAddHabit: () => {
-    router.currentView?.openAddModal?.();
-  },
 });
 
 async function checkStatus() {

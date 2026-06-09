@@ -6,6 +6,7 @@ import { cycleThemeMode } from './theme.js';
 import { habitStore } from './habit-store.js';
 import { moveHabitFocus, getSelectedHabitId } from './habit-focus.js';
 import { isCommandSearchOpen, closeCommandSearch } from './command-search.js';
+import { invokeViewAction } from './view-actions.js';
 
 const ROUTES = {
   '1': '/',
@@ -39,9 +40,6 @@ const SHORTCUTS_HTML = `
 
 let navigateFn = null;
 let getRouteFn = () => '/';
-let onHabitFocusChange = null;
-let onHabitToggle = null;
-let onAddHabit = null;
 
 function isTypingTarget(el) {
   if (!el) return false;
@@ -90,14 +88,14 @@ function handleHabitNav(delta) {
   document.querySelectorAll('.habit-chip.is-hovered').forEach((chip) => {
     chip.classList.remove('is-hovered');
   });
-  onHabitFocusChange?.(id);
+  invokeViewAction('habitFocus', id);
 }
 
 function toggleFocusedHabit() {
   const habits = habitStore.getHabits();
   const id = getSelectedHabitId(habits);
   if (!id) return;
-  onHabitToggle?.(id);
+  invokeViewAction('habitToggle', id);
 }
 
 function onKeyDown(event) {
@@ -162,23 +160,14 @@ function onKeyDown(event) {
 
   if (lower === 'n' && getRouteFn() === '/') {
     event.preventDefault();
-    onAddHabit?.();
+    invokeViewAction('openAddModal');
     return;
   }
 }
 
-export function initKeyboard({
-  navigate,
-  getRoute,
-  onHabitFocus,
-  onHabitToggled,
-  onAddHabit: onAddHabitCb,
-}) {
+export function initKeyboard({ navigate, getRoute }) {
   navigateFn = navigate;
   getRouteFn = getRoute || (() => '/');
-  onHabitFocusChange = onHabitFocus;
-  onHabitToggle = onHabitToggled;
-  onAddHabit = onAddHabitCb;
 
   if (document.body.dataset.keyboardBound) return;
   document.body.dataset.keyboardBound = '1';

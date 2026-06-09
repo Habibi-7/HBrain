@@ -5,6 +5,7 @@ import { awClient } from '../lib/aw-client.js';
 import { categoryManager } from '../lib/categories.js';
 import { getThemeMode, setThemeMode, THEME_MODES, getThemeLabel } from '../lib/theme.js';
 import { iconHtml } from '../lib/icons.js';
+import { escapeHtml, escapeAttr } from '../lib/html.js';
 
 export function settingsView() {
   const el = document.createElement('div');
@@ -42,8 +43,8 @@ export function settingsView() {
           </div>
           <div class="date-bar" id="theme-picker" style="margin-bottom:0;">
             ${THEME_MODES.map(mode => `
-              <button class="date-btn ${getThemeMode() === mode ? 'active' : ''}" type="button" data-theme="${mode}">
-                ${getThemeLabel(mode)}
+              <button class="date-btn ${getThemeMode() === mode ? 'active' : ''}" type="button" data-theme="${escapeAttr(mode)}">
+                ${escapeHtml(getThemeLabel(mode))}
               </button>
             `).join('')}
           </div>
@@ -70,15 +71,15 @@ export function settingsView() {
           </div>
           ${connected ? `
             <dl class="settings-kv">
-              <div><dt>Server</dt><dd>${info?.hostname || 'localhost'}:5600</dd></div>
-              <div><dt>Host</dt><dd>${hostname || '—'}</dd></div>
+              <div><dt>Server</dt><dd>${escapeHtml(info?.hostname || 'localhost')}:5600</dd></div>
+              <div><dt>Host</dt><dd>${escapeHtml(hostname || '—')}</dd></div>
               <div><dt>Buckets</dt><dd>${bucketIds.length}</dd></div>
             </dl>
             ${bucketIds.length ? `
               <div class="settings-scroll" style="margin-top:var(--sp-2);">
                 <div style="display:flex;flex-wrap:wrap;gap:var(--sp-1);">
                   ${bucketIds.slice(0, 6).map(id => `
-                    <span class="text-xs fg-tertiary" style="padding:2px 6px;background:var(--track-bg);border-radius:var(--radius-sm);font-family:var(--font-mono);">${id}</span>
+                    <span class="text-xs fg-tertiary" style="padding:2px 6px;background:var(--track-bg);border-radius:var(--radius-sm);font-family:var(--font-mono);">${escapeHtml(id)}</span>
                   `).join('')}
                   ${bucketIds.length > 6 ? `<span class="text-xs fg-muted">+${bucketIds.length - 6}</span>` : ''}
                 </div>
@@ -107,11 +108,11 @@ export function settingsView() {
           <div class="settings-scroll">
             ${categories.map(cat => `
               <div class="settings-category-row">
-                <div class="settings-category-dot" style="background:${cat.color};"></div>
+                <div class="settings-category-dot" style="background:${escapeAttr(cat.color)};"></div>
                 <span class="settings-category-name">
-                  ${iconHtml(cat.icon, { size: 14 })} ${cat.name}
+                  ${iconHtml(cat.icon, { size: 14 })} ${escapeHtml(cat.name)}
                 </span>
-                <span class="settings-category-rules fg-muted">${cat.rules.map(r => r.match).join(', ')}</span>
+                <span class="settings-category-rules fg-muted">${cat.rules.map(r => escapeHtml(r.match)).join(', ')}</span>
               </div>
             `).join('')}
           </div>
@@ -161,6 +162,8 @@ export function settingsView() {
 
   }
 
-  render();
-  return { el };
+  return {
+    el,
+    mount: render,
+  };
 }

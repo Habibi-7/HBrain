@@ -7,14 +7,7 @@ import { setFocusIndex } from './habit-focus.js';
 import { getHeatmapFilter, setHeatmapFilter, FILTER_TYPES } from './heatmap-filter.js';
 import { loadHeatmapView } from './heatmap-data.js';
 import { openCommandSearch } from './command-search.js';
-
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+import { escapeHtml, escapeAttr } from './html.js';
 
 function dateLabel(dateStr) {
   const d = new Date(`${dateStr}T12:00:00`);
@@ -50,7 +43,8 @@ function renderCells(view) {
   const cells = buildWeekGrid(view.levelByDate || {});
   return cells.map((cell) => {
     if (cell.level < 0) {
-      return `<div class="heatmap-cell heatmap-cell--future" aria-hidden="true"></div>`;
+      const offClass = cell.level === -2 ? 'heatmap-cell--off' : 'heatmap-cell--future';
+      return `<div class="heatmap-cell ${offClass}" aria-hidden="true"></div>`;
     }
     const hint = view.cellHint?.(cell.date, cell.level) || cell.date;
     const heatClass = view.mode === 'habits' ? 'habit-heat-cell' : 'activity-heat-cell';
@@ -83,7 +77,7 @@ function renderHabitChips(habits, filter) {
       <button
         type="button"
         class="habit-chip ${active ? 'is-selected' : ''} ${done ? 'is-done' : ''}"
-        data-habit-id="${habit.id}"
+        data-habit-id="${escapeAttr(habit.id)}"
         data-habit-index="${i}"
         aria-label="${escapeHtml(habit.name)}${done ? ' (completed today)' : ''}"
       >

@@ -7,6 +7,7 @@ import { formatActivityLabel } from './activity-label.js';
 import { awClient } from './aw-client.js';
 import { daysAgoStart, todayEnd } from './time-utils.js';
 import { FILTER_TYPES } from './heatmap-filter.js';
+import { escapeHtml } from './html.js';
 
 /** Score a fuzzy match — lower is better (Fuse.js-style threshold ~0.1) */
 export function fuzzyScore(query, text) {
@@ -39,13 +40,6 @@ function highlightMatch(query, text) {
   const idx = t.toLowerCase().indexOf(q);
   if (idx < 0) return text;
   return `${escapeHtml(t.slice(0, idx))}<mark>${escapeHtml(t.slice(idx, idx + q.length))}</mark>${escapeHtml(t.slice(idx + q.length))}`;
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
 }
 
 let cachedTargets = null;

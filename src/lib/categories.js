@@ -3,6 +3,27 @@
  */
 import { normalizeIconKey } from './icons.js';
 
+export function toActivityWatchCategories(categories) {
+  return categories.map((cat) => {
+    const parts = cat.rules.map((rule) => {
+      const match = rule.match.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return rule.type === 'title' ? `title:${match}` : match;
+    });
+    return [cat.name, { type: 'regex', regex: parts.join('|'), ignoreCase: true }];
+  });
+}
+
+function matchRule(rule, appName, title) {
+  const needle = rule.match.toLowerCase();
+  if (rule.type === 'app') {
+    return appName?.toLowerCase().includes(needle);
+  }
+  if (rule.type === 'title') {
+    return title?.toLowerCase().includes(needle);
+  }
+  return false;
+}
+
 const CATEGORIES_KEY = 'hbrain_categories';
 const CATEGORY_COLORS_KEY = 'hbrain_category_colors_v5';
 const CATEGORY_ICONS_KEY = 'hbrain_category_icons_v1';
@@ -194,10 +215,7 @@ class CategoryManager {
     const cats = this.getCategories();
     for (const cat of cats) {
       for (const rule of cat.rules) {
-        if (rule.type === 'app' && appName?.toLowerCase().includes(rule.match.toLowerCase())) {
-          return cat;
-        }
-        if (rule.type === 'title' && title?.toLowerCase().includes(rule.match.toLowerCase())) {
+        if (matchRule(rule, appName, title)) {
           return cat;
         }
       }

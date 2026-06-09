@@ -73,14 +73,21 @@ function loadHabitsAllView(filter) {
 
   return Promise.resolve({
     title: filter.label,
-    subtitle: `${Math.round(history.filter((d) => d.completed).length / 7 * 100)}% this week`,
+    subtitle: (() => {
+      const streak = habitStore.getCombinedStreak();
+      const weekly = habitStore.getCombinedWeeklyRate();
+      return streak > 0 ? `${streak} streak · ${weekly}% this week` : `${weekly}% this week`;
+    })(),
     icon: 'flame',
     mode: 'habits',
     levelByDate,
     cellHint: (date, level) => {
       const day = history.find((d) => d.date === date);
       if (!day) return date;
-      return `${date}${day.completed ? ' · all done' : day.fraction > 0 ? ` · ${Math.round(day.fraction * 100)}%` : ''}`;
+      if (!day.scheduled) return `${date} · rest day`;
+      if (day.completed) return `${date} · all habits on streak`;
+      if (day.fraction > 0) return `${date} · ${Math.round(day.fraction * 100)}% done`;
+      return date;
     },
   });
 }
@@ -89,16 +96,20 @@ function loadHabitView(filter) {
   const history = habitStore.getHabitHistory(filter.id, HEATMAP_DAYS);
   const levels = habitStore.historyToLevels(history);
   const levelByDate = Object.fromEntries(history.map((d, i) => [d.date, levels[i]]));
+  const streak = habitStore.getStreak(filter.id);
+  const weekly = habitStore.getWeeklyRate(filter.id);
 
   return Promise.resolve({
     title: filter.label,
-    subtitle: `${habitStore.getWeeklyRate(filter.id)}% this week`,
+    subtitle: streak > 0 ? `${streak} streak · ${weekly}% this week` : `${weekly}% this week`,
     icon: filter.icon || 'star',
     mode: 'habits',
     levelByDate,
     cellHint: (date, level) => {
       const day = history.find((d) => d.date === date);
-      return `${date}${day?.completed ? ' · done' : ''}`;
+      if (!day) return date;
+      if (!day.scheduled) return `${date} · rest day`;
+      return `${date}${day.completed ? ' · done' : ' · missed'}`;
     },
   });
 }

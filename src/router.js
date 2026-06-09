@@ -1,38 +1,44 @@
-/**
- * Simple hash-based router
- */
-
 export class Router {
   constructor(routes, container) {
     this.routes = routes;
     this.container = container;
     this.currentView = null;
+    this.onHashChange = () => this.resolve();
 
-    window.addEventListener('hashchange', () => this.resolve());
+    this.aliases = {
+      '/activity': '/timeline',
+      '/habits': '/',
+    };
+
+    window.addEventListener('hashchange', this.onHashChange);
     this.resolve();
   }
 
   resolve() {
     const hash = window.location.hash.slice(1) || '/';
-    const route = this.routes.find(r => r.path === hash) || this.routes[0];
+    const path = this.aliases[hash] ?? hash;
 
-    // Update nav active state
-    document.querySelectorAll('[data-route]').forEach(el => {
+    if (path !== hash) {
+      window.location.replace(`#${path}`);
+      return;
+    }
+
+    const route = this.routes.find((r) => r.path === path) || this.routes[0];
+
+    document.querySelectorAll('[data-route]').forEach((el) => {
       el.classList.toggle('active', el.dataset.route === route.path);
     });
 
-    // Render view
-    if (this.currentView?.destroy) this.currentView.destroy();
+    this.currentView?.destroy?.();
     this.container.innerHTML = '';
+
     this.currentView = route.view();
-    if (typeof this.currentView === 'string') {
-      this.container.innerHTML = this.currentView;
-    } else if (this.currentView instanceof HTMLElement) {
-      this.container.appendChild(this.currentView);
-    } else if (this.currentView?.el) {
-      this.container.appendChild(this.currentView.el);
-      if (this.currentView.mount) this.currentView.mount();
+    if (!this.currentView?.el) {
+      throw new Error(`Route "${route.path}" must return a view with an el property`);
     }
+
+    this.container.appendChild(this.currentView.el);
+    this.currentView.mount?.();
   }
 
   navigate(path) {
@@ -40,6 +46,12 @@ export class Router {
   }
 
   getCurrentPath() {
-    return window.location.hash.slice(1) || '/';
+    const hash = window.location.hash.slice(1) || '/';
+    return this.aliases[hash] ?? hash;
+  }
+
+  destroy() {
+    window.removeEventListener('hashchange', this.onHashChange);
+    this.currentView?.destroy?.();
   }
 }
