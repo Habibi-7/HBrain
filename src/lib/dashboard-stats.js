@@ -3,7 +3,14 @@
  */
 import { awClient } from './aw-client.js';
 import { habitStore } from './habit-store.js';
-import { formatDuration, todayStart, todayEnd, daysAgoStart, pct } from './time-utils.js';
+import {
+  formatDuration,
+  dayBounds,
+  shiftDay,
+  dateStr,
+  startOfDay,
+  pct,
+} from './time-utils.js';
 import { getTopTarget } from './activity-label.js';
 import { categoryManager } from './categories.js';
 import { escapeHtml } from './html.js';
@@ -12,16 +19,19 @@ function isActive(signal) {
   return !signal?.aborted;
 }
 
-export function loadHabitsStats(rootEl) {
+export function loadHabitsStats(rootEl, { selectedDay = startOfDay() } = {}) {
   const doneEl = rootEl.querySelector('#habits-done');
   const totalEl = rootEl.querySelector('#habits-total');
   if (!doneEl || !totalEl) return;
 
-  const habits = habitStore.getHabits();
-  const today = new Date().toISOString().slice(0, 10);
-  const completedCount = habits.filter((h) => habitStore.isCompleted(h.id, today)).length;
-  doneEl.textContent = `${completedCount}/${habits.length}`;
-  totalEl.textContent = `${habits.length} tracked`;
+  const day = dateStr(selectedDay);
+  const isToday = day === dateStr(new Date());
+  const habits = habitStore.getScheduledHabits(day);
+  const completedCount = habits.filter((h) => habitStore.isCompleted(h.id, day)).length;
+  doneEl.textContent = habits.length ? `${completedCount}/${habits.length}` : '—';
+  totalEl.textContent = habits.length
+    ? `${habits.length} due${isToday ? ' today' : ''}`
+    : 'Rest day';
 }
 
 export function renderTopApps(rootEl, titles) {
@@ -58,15 +68,14 @@ export function renderTopApps(rootEl, titles) {
   }).join('');
 }
 
-export async function loadActivityData(rootEl, { signal } = {}) {
-  const start = todayStart();
-  const end = todayEnd();
-  const yesterdayStart = daysAgoStart(1);
-  const yesterdayEnd = todayStart();
+export async function loadActivityData(rootEl, { signal, selectedDay = startOfDay() } = {}) {
+  const { start, end } = dayBounds(selectedDay);
+  const prevDay = shiftDay(selectedDay, -1);
+  const { start: prevStart, end: prevEnd } = dayBounds(prevDay);
 
-  const [today, yesterday] = await Promise.all([
+  const [dayData, prevData] = await Promise.all([
     awClient.getWindowActivity(start, end),
-    awClient.getWindowActivity(yesterdayStart, yesterdayEnd),
+    awClient.getWindowActivity(prevStart, prevEnd),
   ]);
 
   if (!isActive(signal)) return;
@@ -76,32 +85,43 @@ export async function loadActivityData(rootEl, { signal } = {}) {
   const focusEl = rootEl.querySelector('#top-focus');
   const focusTimeEl = rootEl.querySelector('#top-focus-time');
 
-  if (activeEl) activeEl.textContent = formatDuration(today.duration);
+  if (activeEl) activeEl.textContent = formatDuration(dayData.duration);
 
-  if (changeEl && yesterday.duration > 0) {
-    const change = today.duration - yesterday.duration;
-    const changePct = Math.round((change / yesterday.duration) * 100);
-    changeEl.className = `stat-change ${change >= 0 ? 'positive' : 'negative'}`;
-    changeEl.textContent = `${change >= 0 ? '↑' : '↓'} ${Math.abs(changePct)}%`;
+  if (changeEl) {
+    if (prevData.duration > 0) {
+      const change = dayData.duration - prevData.duration;
+      const changePct = Math.round((change / prevData.duration) * 100);
+      changeEl.className = `stat-change ${change >= 0 ? 'positive' : 'negative'}`;
+      changeEl.textContent = `${change >= 0 ? '↑' : '↓'} ${Math.abs(changePct)}%`;
+    } else {
+      changeEl.className = 'stat-chip-note';
+      changeEl.textContent = '';
+    }
   }
 
-  const top = getTopTarget(today);
-  if (top && focusEl) {
-    focusEl.textContent = top.label;
-    focusEl.title = top.app ? `${top.label} · ${top.app}` : top.label;
-    if (focusTimeEl) focusTimeEl.textContent = formatDuration(top.duration);
+  const top = getTopTarget(dayData);
+  if (focusEl) {
+    if (top) {
+      focusEl.textContent = top.label;
+      focusEl.title = top.app ? `${top.label} · ${top.app}` : top.label;
+      if (focusTimeEl) focusTimeEl.textContent = formatDuration(top.duration);
+    } else {
+      focusEl.textContent = '—';
+      focusEl.title = '';
+      if (focusTimeEl) focusTimeEl.textContent = '';
+    }
   }
 
-  const sinks = today.titles?.length ? today.titles : today.apps || [];
+  const sinks = dayData.titles?.length ? dayData.titles : dayData.apps || [];
   renderTopApps(rootEl, sinks);
 }
 
-export async function loadDashboardStats(rootEl, { signal } = {}) {
+export async function loadDashboardStats(rootEl, { signal, selectedDay = startOfDay() } = {}) {
   const connected = await awClient.isConnected();
   if (!isActive(signal)) return;
 
   if (connected) {
-    await loadActivityData(rootEl, { signal });
+    await loadActivityData(rootEl, { signal, selectedDay });
   } else {
     const activeEl = rootEl.querySelector('#active-time');
     const changeEl = rootEl.querySelector('#active-change');
@@ -112,5 +132,5 @@ export async function loadDashboardStats(rootEl, { signal } = {}) {
     renderTopApps(rootEl, []);
   }
 
-  if (isActive(signal)) loadHabitsStats(rootEl);
+  if (isActive(signal)) loadHabitsStats(rootEl, { selectedDay });
 }

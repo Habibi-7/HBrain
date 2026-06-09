@@ -1,5 +1,110 @@
 /* Today dashboard and compound-growth card */
 
+.dashboard-day-nav {
+  display: flex;
+  align-items: flex-end;
+}
+
+.dashboard-day-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+
+.dashboard-day-picker:hover,
+.dashboard-day-picker:focus-visible {
+  background: var(--chrome-hover);
+  outline: none;
+}
+
+.dashboard-day-label {
+  margin: 0;
+  pointer-events: none;
+}
+
+.dashboard-day-chevron {
+  width: 24px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--fg-muted);
+  opacity: 0;
+  transition: opacity var(--duration-fast), color var(--duration-fast);
+}
+
+.dashboard-day-picker:hover .dashboard-day-chevron,
+.dashboard-day-picker:focus-visible .dashboard-day-chevron {
+  opacity: 1;
+}
+
+.dashboard-day-chevron.is-disabled {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.date-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  animation: date-picker-in var(--duration-fast) ease-out;
+}
+
+body.theme-day .date-picker-backdrop {
+  background: rgba(20, 60, 110, 0.18);
+}
+
+.date-picker-dialog {
+  animation: date-picker-dialog-in var(--duration-normal) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.date-picker-dialog .mini-cal {
+  width: min(280px, calc(100vw - 48px));
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--gantt-panel-bg, var(--glass-bg-strong));
+  backdrop-filter: blur(40px) saturate(1.35);
+  -webkit-backdrop-filter: blur(40px) saturate(1.35);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+body.date-picker-open {
+  overflow: hidden;
+}
+
+@keyframes date-picker-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes date-picker-dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .stat-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -144,15 +249,6 @@
   gap: var(--sp-4);
 }
 
-.compound-growth-kicker {
-  display: block;
-  margin-bottom: var(--sp-1);
-  font: 10px/1 var(--font-sans);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg-tertiary);
-}
-
 .compound-growth-title {
   font: clamp(1.35rem, 2vw, 1.75rem)/1.05 var(--font-sans);
   font-weight: 500;
@@ -285,7 +381,8 @@ body.theme-day .compound-growth-svg {
 
 .compound-growth-chart-legend {
   display: flex;
-  gap: var(--sp-4);
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-4);
   font: 10px/1 var(--font-sans);
   color: var(--fg-muted);
 }
@@ -312,12 +409,41 @@ body.theme-day .compound-growth-svg {
   border-top: 1px dashed currentColor;
 }
 
+.compound-legend-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 999px;
+  background: var(--progress-green);
+  box-shadow: 0 0 6px rgba(134, 201, 174, 0.45);
+}
+
+.compound-growth-perfect-dot {
+  fill: var(--progress-green);
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 1;
+}
+
+body.theme-day .compound-growth-perfect-dot {
+  stroke: rgba(15, 23, 40, 0.15);
+}
+
 .compound-growth-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--sp-3);
   padding-top: var(--sp-2);
   border-top: 1px solid var(--glass-border-soft);
+}
+
+.compound-growth-footnote {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--fg-tertiary);
+  font-style: italic;
 }
 
 .compound-stat-label {

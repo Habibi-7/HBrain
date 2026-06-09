@@ -9,6 +9,21 @@ import { loadHeatmapView } from './heatmap-data.js';
 import { openCommandSearch } from './command-search.js';
 import { escapeHtml, escapeAttr } from './html.js';
 
+function renderHabitDoneButton(habitId, selectedDayStr) {
+  if (!habitId || !habitStore.isScheduled(habitId, selectedDayStr)) return '';
+
+  const done = habitStore.isCompleted(habitId, selectedDayStr);
+  return `
+    <button
+      type="button"
+      class="habit-done-btn ${done ? 'is-done' : ''}"
+      id="habit-done-btn"
+      data-habit-id="${escapeAttr(habitId)}"
+      aria-pressed="${done}"
+      aria-label="${done ? 'Mark as not done' : 'Mark as done'}"
+    >${done ? 'Done' : 'Done?'}</button>`;
+}
+
 function dateLabel(dateStr) {
   const d = new Date(`${dateStr}T12:00:00`);
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -62,51 +77,54 @@ function renderAllHabitsChip(filter) {
       aria-label="All habits"
     >
       ${iconHtml('flame', { size: 16, className: 'ui-icon habit-chip-icon' })}
-      <span class="habit-chip-tooltip">All habits</span>
     </button>`;
 }
 
-function renderHabitChips(habits, filter) {
+function renderHabitChips(habits, filter, selectedDayStr) {
   if (!habits.length) return '';
-  const today = new Date().toISOString().slice(0, 10);
 
   return habits.map((habit, i) => {
     const active = filter.type === FILTER_TYPES.HABIT && filter.id === habit.id;
-    const done = habitStore.isCompleted(habit.id, today);
+    const done = habitStore.isCompleted(habit.id, selectedDayStr);
     return `
       <button
         type="button"
         class="habit-chip ${active ? 'is-selected' : ''} ${done ? 'is-done' : ''}"
         data-habit-id="${escapeAttr(habit.id)}"
         data-habit-index="${i}"
-        aria-label="${escapeHtml(habit.name)}${done ? ' (completed today)' : ''}"
+        aria-label="${escapeHtml(habit.name)}${done ? ' (completed)' : ''}"
       >
         ${iconHtml(habit.icon, { size: 16, className: 'ui-icon habit-chip-icon' })}
-        <span class="habit-chip-tooltip">${escapeHtml(habit.name)}</span>
       </button>`;
   }).join('');
 }
 
-function renderHabitQueue(habits, filter) {
+function renderHabitQueue(habits, filter, selectedDayStr) {
+  const emptyNote = habits.length
+    ? ''
+    : '<span class="habit-queue-empty">Rest day</span>';
+
   return `
     <div class="habit-queue" role="toolbar" aria-label="Habits">
-      <div class="habit-queue-items">${renderAllHabitsChip(filter)}${habits.length ? renderHabitChips(habits, filter) : ''}</div>
+      <div class="habit-queue-items">${renderAllHabitsChip(filter)}${habits.length ? renderHabitChips(habits, filter, selectedDayStr) : emptyNote}</div>
       <button type="button" class="habit-queue-add" id="habit-add-btn" aria-label="Add habit">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
     </div>`;
 }
 
-function renderHeatmapInner(view, filter) {
-  const habits = habitStore.getHabits();
+function renderHeatmapInner(view, filter, selectedDayStr) {
+  const habits = habitStore.getScheduledHabits(selectedDayStr);
+  const showDoneBtn = filter.type === FILTER_TYPES.HABIT;
 
   return `
-    ${renderHabitQueue(habits, filter)}
+    ${renderHabitQueue(habits, filter, selectedDayStr)}
     <div class="habit-heatmap-head">
       <div class="habit-heatmap-title">
         <span class="habit-heatmap-icon">${iconHtml(view.icon, { size: 14 })}</span>
         <span class="habit-heatmap-name">${escapeHtml(view.title)}</span>
         <span class="habit-heatmap-streak mono">${escapeHtml(view.subtitle)}</span>
+        ${showDoneBtn ? renderHabitDoneButton(filter.id, selectedDayStr) : ''}
       </div>
       <div class="heatmap-controls">
         <button type="button" class="heatmap-search-btn" id="heatmap-search-btn" aria-label="Search activity (Cmd+K)">
@@ -125,93 +143,46 @@ function renderLoading() {
   return `<div class="heatmap-loading"><span class="pulse">Loading heatmap…</span></div>`;
 }
 
-function clearChipHover(container) {
-  container.querySelectorAll('.habit-chip.is-hovered').forEach((chip) => {
-    chip.classList.remove('is-hovered');
-  });
-}
-
-function bindHabitChips(container, handlers = {}) {
+function bindHabitChips(container, handlers = {}, selectedDayStr) {
   const chips = container.querySelectorAll('.habit-chip');
-  if (container._habitChipCleanup) container._habitChipCleanup();
-
-  const onLeave = (event) => {
-    const next = event.relatedTarget;
-    if (next && container.contains(next)) return;
-    clearChipHover(container);
-  };
 
   chips.forEach((chip) => {
-    let clickTimer = null;
-    chip.addEventListener('mouseenter', () => {
-      clearChipHover(container);
-      chip.classList.add('is-hovered');
-    });
-    chip.addEventListener('mouseleave', (event) => {
-      if (event.relatedTarget && chip.contains(event.relatedTarget)) return;
-      chip.classList.remove('is-hovered');
-    });
     chip.addEventListener('click', () => {
-      if (clickTimer) clearTimeout(clickTimer);
-      clickTimer = setTimeout(() => {
-        const filter = getHeatmapFilter();
-        const habits = habitStore.getHabits();
+      const filter = getHeatmapFilter();
+      const habits = habitStore.getScheduledHabits(selectedDayStr);
 
-        if (chip.dataset.habitScope === 'all') {
-          if (filter.type !== FILTER_TYPES.HABITS_ALL) {
-            setHeatmapFilter({
-              type: FILTER_TYPES.HABITS_ALL,
-              id: 'habits-all',
-              label: 'All habits',
-              icon: 'flame',
-            });
-            handlers.onFilterChange?.();
-          }
-          clickTimer = null;
-          return;
-        }
-
-        const index = parseInt(chip.dataset.habitIndex, 10);
-        const habitId = chip.dataset.habitId;
-        const habit = habits[index];
-        if (!habit) {
-          clickTimer = null;
-          return;
-        }
-
-        if (filter.type === FILTER_TYPES.HABIT && filter.id === habitId) {
-          handlers.onToggle?.(habitId, index);
-        } else {
-          setFocusIndex(index, habits);
+      if (chip.dataset.habitScope === 'all') {
+        if (filter.type !== FILTER_TYPES.HABITS_ALL) {
           setHeatmapFilter({
-            type: FILTER_TYPES.HABIT,
-            id: habit.id,
-            label: habit.name,
-            icon: habit.icon,
+            type: FILTER_TYPES.HABITS_ALL,
+            id: 'habits-all',
+            label: 'All habits',
+            icon: 'flame',
           });
           handlers.onFilterChange?.();
         }
-        clickTimer = null;
-      }, 200);
-    });
-    chip.addEventListener('dblclick', (event) => {
-      event.preventDefault();
-      if (clickTimer) {
-        clearTimeout(clickTimer);
-        clickTimer = null;
+        return;
       }
-      handlers.onDelete?.(chip.dataset.habitId, chip);
+
+      const index = parseInt(chip.dataset.habitIndex, 10);
+      const habit = habits[index];
+      if (!habit) return;
+
+      setFocusIndex(index, habits);
+      if (filter.type !== FILTER_TYPES.HABIT || filter.id !== habit.id) {
+        setHeatmapFilter({
+          type: FILTER_TYPES.HABIT,
+          id: habit.id,
+          label: habit.name,
+          icon: habit.icon,
+        });
+        handlers.onFilterChange?.();
+      }
     });
   });
-
-  container.addEventListener('mouseleave', onLeave);
-  container._habitChipCleanup = () => {
-    container.removeEventListener('mouseleave', onLeave);
-    clearChipHover(container);
-  };
 }
 
-function bindControls(host, handlers) {
+function bindControls(host, handlers, selectedDayStr) {
   host.querySelector('#heatmap-search-btn')?.addEventListener('click', () => {
     openCommandSearch({ onSelect: () => handlers.onFilterChange?.() });
   });
@@ -219,18 +190,27 @@ function bindControls(host, handlers) {
   host.querySelector('#habit-add-btn')?.addEventListener('click', () => {
     handlers.onAddHabit?.();
   });
+
+  host.querySelector('#habit-done-btn')?.addEventListener('click', () => {
+    const habitId = host.querySelector('#habit-done-btn')?.dataset.habitId;
+    if (!habitId || !habitStore.isScheduled(habitId, selectedDayStr)) return;
+    handlers.onMarkDone?.(habitId);
+  });
 }
 
-export async function mountActivityHeatmap(host, handlers = {}) {
+export async function mountActivityHeatmap(host, handlers = {}, { selectedDay } = {}) {
   if (!host) return;
+  const selectedDayStr = selectedDay
+    ? selectedDay.toISOString().slice(0, 10)
+    : new Date().toISOString().slice(0, 10);
   const filter = getHeatmapFilter();
   host.innerHTML = renderLoading();
 
   try {
     const view = await loadHeatmapView(filter);
-    host.innerHTML = renderHeatmapInner(view, filter);
-    bindControls(host, handlers);
-    bindHabitChips(host, handlers);
+    host.innerHTML = renderHeatmapInner(view, filter, selectedDayStr);
+    bindControls(host, handlers, selectedDayStr);
+    bindHabitChips(host, handlers, selectedDayStr);
   } catch (err) {
     console.error('Heatmap load error:', err);
     host.innerHTML = `<div class="habit-heatmap-empty">Failed to load heatmap</div>`;
