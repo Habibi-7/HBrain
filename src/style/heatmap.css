@@ -44,6 +44,13 @@
   background: transparent;
   color: var(--fg-tertiary);
   cursor: pointer;
+  transition: color 0.18s var(--ease-out), border-color 0.18s var(--ease-out), background 0.18s var(--ease-out);
+}
+
+.habit-queue-add:hover {
+  color: var(--fg-primary);
+  border-color: var(--glass-border);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .habit-heatmap-bar {
@@ -96,12 +103,27 @@
   font-weight: 500;
   color: var(--fg-secondary);
   letter-spacing: 0.01em;
+  transition:
+    border-color var(--duration-fast),
+    background var(--duration-fast),
+    color var(--duration-fast);
+}
+
+.habit-done-btn:hover:not(.is-done) {
+  border-color: color-mix(in srgb, var(--progress-green) 45%, var(--glass-border));
+  background: color-mix(in srgb, var(--progress-green) 10%, var(--track-bg));
+  color: var(--fg-primary);
 }
 
 .habit-done-btn.is-done {
   border-color: color-mix(in srgb, var(--progress-green) 50%, transparent);
   background: color-mix(in srgb, var(--progress-green) 22%, transparent);
   color: var(--habit-done);
+}
+
+.habit-done-btn.is-done:hover {
+  border-color: color-mix(in srgb, var(--progress-green) 65%, transparent);
+  background: color-mix(in srgb, var(--progress-green) 30%, transparent);
 }
 
 .heatmap-controls {
@@ -194,6 +216,11 @@
   cursor: pointer;
   outline: none;
   box-shadow: none;
+  transition:
+    background 0.18s var(--ease-out),
+    color 0.18s var(--ease-out),
+    transform 0.18s var(--ease-out),
+    opacity 0.18s var(--ease-out);
 }
 
 .habit-chip:focus,
@@ -221,6 +248,27 @@
 
 .habit-chip.is-selected.is-done {
   background: color-mix(in srgb, var(--progress-green) 32%, transparent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .habit-chip:hover:not(.is-done) {
+    color: var(--fg-primary);
+    transform: translateY(-1px);
+  }
+
+  .habit-chip.is-selected:hover:not(.is-done) {
+    background: color-mix(in srgb, var(--fg-primary) 12%, transparent);
+  }
+
+  .habit-chip.is-done:hover {
+    background: color-mix(in srgb, var(--progress-green) 34%, transparent);
+    color: var(--habit-done);
+    transform: translateY(-1px);
+  }
+
+  .habit-chip.is-selected.is-done:hover {
+    background: color-mix(in srgb, var(--progress-green) 38%, transparent);
+  }
 }
 
 /* Shared heatmap grid primitives */
