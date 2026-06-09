@@ -69,6 +69,72 @@ export function renderMiniCalendar({ selectedDay, viewMonth }) {
     </div>`;
 }
 
+function bindMiniCalendar(root, { selectedDay, viewMonth, onSelect, onMonthChange }) {
+  root.querySelectorAll('[data-date]:not([disabled])').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      onSelect(startOfDay(new Date(`${btn.dataset.date}T12:00:00`)));
+    });
+  });
+
+  root.querySelectorAll('[data-cal-nav]:not([disabled])').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      onMonthChange(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + Number(btn.dataset.calNav), 1));
+    });
+  });
+}
+
+export function openDatePickerModal({ selectedDay, onSelect, onClose }) {
+  let viewMonth = monthStart(selectedDay);
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'date-picker-backdrop';
+
+  const dialog = document.createElement('div');
+  dialog.className = 'date-picker-dialog';
+  dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('aria-label', 'Choose date');
+  backdrop.appendChild(dialog);
+
+  document.body.appendChild(backdrop);
+  document.body.classList.add('date-picker-open');
+
+  function paint() {
+    dialog.innerHTML = renderMiniCalendar({ selectedDay, viewMonth });
+    bindMiniCalendar(dialog, {
+      selectedDay,
+      viewMonth,
+      onSelect: (day) => {
+        onSelect(day);
+        close();
+      },
+      onMonthChange: (nextMonth) => {
+        viewMonth = nextMonth;
+        paint();
+      },
+    });
+  }
+
+  function close() {
+    document.body.classList.remove('date-picker-open');
+    backdrop.remove();
+    document.removeEventListener('keydown', handleEscape);
+    onClose?.();
+  }
+
+  function handleEscape(event) {
+    if (event.key === 'Escape') close();
+  }
+
+  backdrop.addEventListener('click', (event) => {
+    if (event.target === backdrop) close();
+  });
+
+  document.addEventListener('keydown', handleEscape);
+  paint();
+
+  return { close };
+}
+
 export function mountMiniCalendar(anchor, { selectedDay, onSelect, onClose }) {
   let viewMonth = monthStart(selectedDay);
 
@@ -77,19 +143,17 @@ export function mountMiniCalendar(anchor, { selectedDay, onSelect, onClose }) {
 
   function paint() {
     popover.innerHTML = renderMiniCalendar({ selectedDay, viewMonth });
-
-    popover.querySelectorAll('[data-date]:not([disabled])').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        onSelect(startOfDay(new Date(`${btn.dataset.date}T12:00:00`)));
+    bindMiniCalendar(popover, {
+      selectedDay,
+      viewMonth,
+      onSelect: (day) => {
+        onSelect(day);
         onClose();
-      });
-    });
-
-    popover.querySelectorAll('[data-cal-nav]:not([disabled])').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + Number(btn.dataset.calNav), 1);
+      },
+      onMonthChange: (nextMonth) => {
+        viewMonth = nextMonth;
         paint();
-      });
+      },
     });
   }
 

@@ -91,9 +91,14 @@ export function readableDate(dateString) {
   if (dateStr(d) === dateStr(today)) return 'Today';
   if (dateStr(d) === dateStr(yesterday)) return 'Yesterday';
 
-  return d.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
+  return pageDateLabel(d);
+}
+
+/** Always show weekday + month + day (no Today/Yesterday aliases). */
+export function pageDateLabel(d = new Date()) {
+  return startOfDay(d).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
     day: 'numeric',
   });
 }

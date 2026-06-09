@@ -44,13 +44,6 @@
   background: transparent;
   color: var(--fg-tertiary);
   cursor: pointer;
-  transition: color 0.18s var(--ease-out), border-color 0.18s var(--ease-out), background 0.18s var(--ease-out);
-}
-
-.habit-queue-add:hover {
-  color: var(--fg-primary);
-  border-color: var(--glass-border);
-  background: rgba(255, 255, 255, 0.04);
 }
 
 .habit-heatmap-bar {
@@ -90,6 +83,25 @@
   font-size: var(--text-xs);
   color: var(--fg-tertiary);
   flex-shrink: 0;
+}
+
+.habit-done-btn {
+  flex-shrink: 0;
+  margin-left: 2px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border-soft);
+  background: var(--track-bg);
+  font: 11px/1.35 var(--font-sans);
+  font-weight: 500;
+  color: var(--fg-secondary);
+  letter-spacing: 0.01em;
+}
+
+.habit-done-btn.is-done {
+  border-color: color-mix(in srgb, var(--progress-green) 50%, transparent);
+  background: color-mix(in srgb, var(--progress-green) 22%, transparent);
+  color: var(--habit-done);
 }
 
 .heatmap-controls {
@@ -182,11 +194,6 @@
   cursor: pointer;
   outline: none;
   box-shadow: none;
-  transition:
-    background 0.18s var(--ease-out),
-    color 0.18s var(--ease-out),
-    transform 0.18s var(--ease-out),
-    opacity 0.18s var(--ease-out);
 }
 
 .habit-chip:focus,
@@ -214,59 +221,6 @@
 
 .habit-chip.is-selected.is-done {
   background: color-mix(in srgb, var(--progress-green) 32%, transparent);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .habit-chip.is-hovered:not(.is-done) {
-    color: var(--fg-primary);
-    transform: translateY(-1px);
-  }
-
-  .habit-chip.is-selected.is-hovered:not(.is-done) {
-    background: color-mix(in srgb, var(--fg-primary) 12%, transparent);
-  }
-
-  .habit-chip.is-done.is-hovered {
-    background: color-mix(in srgb, var(--progress-green) 34%, transparent);
-    color: var(--habit-done);
-    transform: translateY(-1px);
-  }
-
-  .habit-chip.is-selected.is-done.is-hovered {
-    background: color-mix(in srgb, var(--progress-green) 38%, transparent);
-  }
-}
-
-.habit-chip-tooltip {
-  position: absolute;
-  left: 50%;
-  top: calc(100% + 8px);
-  bottom: auto;
-  transform: translateX(-50%) translateY(-4px);
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  background: var(--glass-bg-strong);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(var(--glass-blur));
-  font: 10px/1.2 var(--font-sans);
-  color: var(--fg-primary);
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.16s var(--ease-out),
-    transform 0.16s var(--ease-out),
-    visibility 0.16s;
-  transition-delay: 0s;
-  z-index: 30;
-}
-
-.habit-chip.is-hovered .habit-chip-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-  transition-delay: 0.12s;
 }
 
 /* Shared heatmap grid primitives */

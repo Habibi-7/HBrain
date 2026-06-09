@@ -1,5 +1,110 @@
 /* Today dashboard and compound-growth card */
 
+.dashboard-day-nav {
+  display: flex;
+  align-items: flex-end;
+}
+
+.dashboard-day-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+
+.dashboard-day-picker:hover,
+.dashboard-day-picker:focus-visible {
+  background: var(--chrome-hover);
+  outline: none;
+}
+
+.dashboard-day-label {
+  margin: 0;
+  pointer-events: none;
+}
+
+.dashboard-day-chevron {
+  width: 24px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--fg-muted);
+  opacity: 0;
+  transition: opacity var(--duration-fast), color var(--duration-fast);
+}
+
+.dashboard-day-picker:hover .dashboard-day-chevron,
+.dashboard-day-picker:focus-visible .dashboard-day-chevron {
+  opacity: 1;
+}
+
+.dashboard-day-chevron.is-disabled {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.date-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(16px) saturate(1.15);
+  -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  animation: date-picker-in var(--duration-fast) ease-out;
+}
+
+body.theme-day .date-picker-backdrop {
+  background: rgba(20, 60, 110, 0.18);
+}
+
+.date-picker-dialog {
+  animation: date-picker-dialog-in var(--duration-normal) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.date-picker-dialog .mini-cal {
+  width: min(280px, calc(100vw - 48px));
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: var(--gantt-panel-bg, var(--glass-bg-strong));
+  backdrop-filter: blur(40px) saturate(1.35);
+  -webkit-backdrop-filter: blur(40px) saturate(1.35);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+body.date-picker-open {
+  overflow: hidden;
+}
+
+@keyframes date-picker-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes date-picker-dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .stat-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
